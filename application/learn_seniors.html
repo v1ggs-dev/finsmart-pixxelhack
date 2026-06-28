@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn for Seniors - FinSmart</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        // --- Authentication & Navigation Guard ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+
+            if (userAge >= 12 && userAge < 16) {
+                learnLink.href = 'learn_juniors.html';
+            } else if (userAge >= 16 && userAge < 18) {
+                learnLink.href = 'learn_seniors.html';
+            } else {
+                learnLink.href = 'learn.html';
+            }
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+        });
+    </script>
+    <script>
+
+        // --- Authentication & Navigation Guard (Runs immediately) ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // --- This runs after the page content is loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Active Link Highlighting (Automatic) ---
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'index.html' || currentPage === '') {
+                document.getElementById('nav-dashboard')?.classList.add('active');
+            } else if (currentPage.startsWith('learn')) { // Handles learn.html, learn_juniors.html, etc.
+                document.getElementById('nav-learn')?.classList.add('active');
+            } else if (currentPage === 'tools.html') {
+                document.getElementById('nav-tools')?.classList.add('active');
+            } else if (currentPage === 'challenges.html') {
+                document.getElementById('nav-challenges')?.classList.add('active');
+            }
+
+            // --- Dynamic "Learn" Link Logic ---
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+            if (learnLink) {
+                if (userAge >= 12 && userAge < 16) {
+                    learnLink.href = 'learn_juniors.html';
+                } else if (userAge >= 16 && userAge < 18) {
+                    learnLink.href = 'learn_seniors.html';
+                } else {
+                    learnLink.href = 'learn.html';
+                }
+            }
+
+            // --- Logout Button Functionality ---
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // --- Your other page-specific JavaScript can go here ---
+            // For example, on challenges.html, the code for rendering challenge cards would follow.
+        });
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            /* indigo-600 */
+            color: white;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chapter-card {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .chapter-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .chapter-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .chapter-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .chapter-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .chapter-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .chapter-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://cdn.v1ggs.lol/assets/fin_favicon.png"
+                        alt="FinSmart Logo">
+                    <span class="font-bold text-xl text-indigo-600">FinSmart</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="index.html" id="nav-dashboard"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" id="nav-learn"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Learn</a>
+                        <a href="tools.html" id="nav-tools"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Tools</a>
+                        <a href="challenges.html" id="nav-challenges"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Challenges</a>
+                        <button id="logout-btn"
+                            class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="text-center px-4">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Senior Financial Skills</h1>
+            <p class="mt-4 text-xl text-gray-600">Get ready for the real world with these essential money skills.</p>
+        </div>
+
+        <!-- Chapter Cards Grid -->
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
+
+            <!-- Chapter 1: First Bank Account -->
+            <a href="chapter_seniors.html?id=1"
+                class="chapter-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <div class="p-6 flex-grow">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-indigo-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H7a3 3 0 00-3 3v8a3 3 0 003 3z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">Your First Bank Account</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Ready to level up from a piggy bank? Learn how to open and manage your
+                        first bank account, understand debit cards, and keep your money safe.</p>
+                </div>
+            </a>
+
+            <!-- Chapter 2: UPI & Digital Wallets -->
+            <a href="chapter_seniors.html?id=2"
+                class="chapter-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <div class="p-6 flex-grow">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-sky-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">UPI & Digital Wallets 101</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Learn to use UPI, QR codes, and digital wallets like a pro. We'll
+                        cover how to pay friends, shop online, and keep your digital transactions secure.</p>
+                </div>
+            </a>
+
+            <!-- Chapter 3: Earning Your Own Money -->
+            <a href="chapter_seniors.html?id=3"
+                class="chapter-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <div class="p-6 flex-grow">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-amber-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">Earning Your Own Money</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">From internships to part-time jobs, explore ways to start earning.
+                        Learn about payslips, income tax basics, and managing your first salary.</p>
+                </div>
+            </a>
+
+            <!-- Chapter 4: Smart Saving Strategies -->
+            <a href="chapter_seniors.html?id=4"
+                class="chapter-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <div class="p-6 flex-grow">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">Smart Saving Strategies</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Go beyond the piggy bank. Learn about different saving methods,
+                        setting financial goals, and the difference between saving and investing.</p>
+                </div>
+            </a>
+
+            <!-- Chapter 5: Building Good Credit Habits -->
+            <a href="chapter_seniors.html?id=5"
+                class="chapter-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <div class="p-6 flex-grow">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-rose-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">Building Good Credit Habits</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Your financial reputation starts now. Understand what a credit score
+                        is and how responsible habits today can help you get loans for college or a car later.</p>
+                </div>
+            </a>
+
+            <!-- Chapter 6: Planning for College -->
+            <a href="chapter_seniors.html?id=6"
+                class="chapter-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                <div class="p-6 flex-grow">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900">Planning for College & Beyond</h3>
+                    </div>
+                    <p class="mt-4 text-gray-600">Higher education can be expensive. Learn about education loans,
+                        scholarships, and how to start planning for your future career and financial independence.</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('nav-learn').classList.add('active');
+        });
+    </script>
+
+</body>
+
+</html>

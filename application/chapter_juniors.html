@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter - FinSmart</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .quiz-option:checked+label {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+            font-weight: 600;
+        }
+
+        /* Accordion styles */
+        details>summary {
+            list-style: none;
+            cursor: pointer;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details .accordion-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        details[open]>summary {
+            background-color: #f9fafb;
+        }
+
+        details[open] .accordion-arrow {
+            transform: rotate(90deg);
+        }
+    </style>
+    <script>
+
+        // --- Authentication & Navigation Guard (Runs immediately) ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // --- This runs after the page content is loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Active Link Highlighting (Automatic) ---
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'index.html' || currentPage === '') {
+                document.getElementById('nav-dashboard')?.classList.add('active');
+            } else if (currentPage.startsWith('learn')) { // Handles learn.html, learn_juniors.html, etc.
+                document.getElementById('nav-learn')?.classList.add('active');
+            } else if (currentPage === 'tools.html') {
+                document.getElementById('nav-tools')?.classList.add('active');
+            } else if (currentPage === 'challenges.html') {
+                document.getElementById('nav-challenges')?.classList.add('active');
+            }
+
+            // --- Dynamic "Learn" Link Logic ---
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+            if (learnLink) {
+                if (userAge >= 12 && userAge < 16) {
+                    learnLink.href = 'learn_juniors.html';
+                } else if (userAge >= 16 && userAge < 18) {
+                    learnLink.href = 'learn_seniors.html';
+                } else {
+                    learnLink.href = 'learn.html';
+                }
+            }
+
+            // --- Logout Button Functionality ---
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // --- Your other page-specific JavaScript can go here ---
+            // For example, on challenges.html, the code for rendering challenge cards would follow.
+        });
+    </script>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://cdn.v1ggs.lol/assets/fin_favicon.png"
+                        alt="FinSmart Logo">
+                    <span class="font-bold text-xl text-indigo-600">FinSmart</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="index.html" id="nav-dashboard"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" id="nav-learn"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Learn</a>
+                        <a href="tools.html" id="nav-tools"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Tools</a>
+                        <a href="challenges.html" id="nav-challenges"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Challenges</a>
+                        <button id="logout-btn"
+                            class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="chapter-content-container" class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set active nav link
+            document.getElementById('nav-learn').classList.add('active');
+
+            // --- CHAPTER DATA (EXPANDED) ---
+            const chaptersData = {
+                '1': {
+                    title: 'Budgeting Basics',
+                    introduction: 'Welcome to the first step towards financial freedom! A budget is simply a plan for your money. It helps you see where your money goes, so you can make it work for you, not against you.',
+                    sections: [
+                        { heading: 'Why Bother with a Budget?', content: 'Budgeting might sound boring, but it’s the most powerful tool you have. It empowers you to reach your goals, whether that’s saving for a new phone, moving out, or just having less financial stress. It puts you in the driver’s seat of your financial life.' },
+                        { heading: 'The 50/30/20 Rule: A Simple Start', content: 'A great way to begin is the 50/30/20 rule. It’s a simple framework for dividing your after-tax income: <br>• <strong>50% on Needs:</strong> Things you absolutely must have, like rent, bills, groceries, and transport. <br>• <strong>30% on Wants:</strong> Things you enjoy but could live without, like dining out, entertainment, and hobbies. <br>• <strong>20% on Savings & Debt Repayment:</strong> This is for your future! It includes saving for goals, investing, or paying off any debts faster.' },
+                        { heading: 'How to Track Your Spending', content: 'You can\'t manage what you don\'t measure. Tracking every rupee is crucial for your budget to work. Here are some popular methods:<br>• <strong>Budgeting Apps:</strong> Apps like Wallet, Spendee, or YNAB can link to your accounts and automatically categorize spending.<br>• <strong>Spreadsheets:</strong> A simple Excel or Google Sheet can be customized to your exact needs.<br>• <strong>The Envelope System:</strong> A cash-based method where you allocate cash into labeled envelopes for different spending categories (e.g., "Groceries", "Entertainment"). When an envelope is empty, you stop spending in that category for the month.' },
+                        { heading: 'Common Budgeting Pitfalls', content: 'Watch out for these common mistakes:<br>• <strong>Being Too Restrictive:</strong> A budget that leaves no room for fun is destined to fail. Be realistic and allow for some "wants".<br>• <strong>Forgetting Irregular Expenses:</strong> Remember to budget for annual or semi-annual expenses like insurance premiums, car maintenance, or festival spending.<br>• <strong>Not Reviewing Regularly:</strong> Your income and expenses change. Review and adjust your budget at least once a month to keep it relevant.' }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/sVKQn2I4HDM',
+                    resources: [{ name: 'Budgeting Worksheet (PDF)', url: 'https://consumer.gov/sites/default/files/pdf-1020-make-budget-worksheet_form.pdf' }, { name: 'Guide to Budgeting Apps', url: '#' }, { name: 'Sample 50/30/20 Budget', url: '#' }],
+                    takeaways: ["A budget is a plan for your money.", "The 50/30/20 rule is a great starting point.", "Consistently tracking your spending is key.", "Review and adjust your budget regularly."],
+                    interactive: { type: 'quiz', question: 'If your monthly income is ₹50,000, how much should you ideally allocate to "Wants" using the 50/30/20 rule?', options: ['₹10,000', '₹15,000', '₹25,000'], correctAnswer: '₹15,000' }
+                },
+                '2': {
+                    title: 'Saving & Investing',
+                    introduction: 'Saving is the foundation, but investing is how you build wealth. This chapter will introduce you to the power of making your money work for you.',
+                    sections: [
+                        { heading: 'The Power of Compound Interest', content: "Often called the eighth wonder of the world, compound interest is when your interest starts earning its own interest. For example, if you invest ₹10,000 at 10% interest, you'll have ₹11,000 after a year. The next year, you earn 10% on ₹11,000, not just the original ₹10,000. This snowball effect is why starting early is so important!" },
+                        { heading: 'Types of Investments', content: 'There are many ways to invest, each with different levels of risk and potential return: <br>• <strong>Stocks:</strong> Owning a small piece (a share) of a company. High potential for growth, but also higher risk. <br>• <strong>Bonds:</strong> Loaning money to a government or company in exchange for regular interest payments. Generally lower risk and lower returns than stocks. <br>• <strong>Mutual Funds & ETFs:</strong> A collection of stocks and bonds managed by a professional. A great way to get instant diversification and reduce risk. <br>• <strong>Real Estate:</strong> Buying property to rent out or sell for a profit. Requires significant capital and is less liquid. <br>• <strong>Provident Fund (PF/PPF):</strong> A government-backed retirement savings scheme in India that provides a fixed, tax-free return.' },
+                        { heading: 'Systematic Investment Plans (SIPs)', content: 'A SIP is a method of investing a fixed amount of money in mutual funds on a regular basis (usually monthly). It\'s a disciplined approach that helps you benefit from something called "rupee cost averaging". This means you buy more units when the market is low and fewer units when the market is high, averaging out your purchase cost over time. It\'s one of the best ways for beginners to start investing in the stock market.' }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/qIw-yFC-HNU',
+                    resources: [{ name: 'Beginner\'s Guide to Investing', url: '#' }, { name: 'Risk Assessment Questionnaire', url: '#' }, { name: 'Learn about SIPs', url: '#' }],
+                    takeaways: ["Compound interest accelerates wealth growth.", "Higher risk can mean higher reward.", "Diversification through mutual funds is a smart strategy.", "SIPs encourage disciplined, long-term investing."],
+                    interactive: { type: 'quiz', question: 'Which investment type generally has the highest risk and highest potential for growth?', options: ['Stocks', 'Bonds', 'Savings Account'], correctAnswer: 'Stocks' }
+                },
+                '3': {
+                    title: 'Credit & Debt',
+                    introduction: 'Understanding credit and debt is crucial for making big life purchases. Used wisely, it’s a powerful tool. Used poorly, it can be a trap.',
+                    sections: [
+                        { heading: 'What is a Credit Score?', content: 'A credit score (like a CIBIL score in India, ranging from 300-900) is a number that represents your creditworthiness. Lenders use it to decide if they should lend you money and at what interest rate. A higher score (above 750) can get you loans approved faster and at lower interest rates. Paying bills on time and keeping debt low are the best ways to improve your score.' },
+                        { heading: 'Good Debt vs. Bad Debt', content: 'Not all debt is bad! The key is whether the debt is for an asset that will grow in value or increase your income potential. <br>• <strong>Good Debt:</strong> This is money borrowed to build wealth. Examples include a home loan (property value can appreciate), an education loan (can lead to a higher salary), or a business loan. <br>• <strong>Bad Debt:</strong> This is debt for things that lose value (depreciating assets) or for consumption. Examples include credit card debt for luxury items, personal loans for vacations, or financing a new car (which loses value the moment you drive it off the lot).' },
+                        { heading: 'Strategies for Paying Down Debt', content: 'If you have multiple debts, you need a strategy. Two popular methods are:<br>• <strong>Debt Snowball:</strong> List your debts from smallest to largest balance. Make minimum payments on all, but put any extra money towards the smallest debt. Once it\'s paid off, roll that entire payment amount onto the next-smallest debt. This method gives you quick psychological wins.<br>• <strong>Debt Avalanche:</strong> List your debts by interest rate, from highest to lowest. Make minimum payments on all, but attack the debt with the highest interest rate first. This method saves you the most money in interest over time.' }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/o3EKn00532o',
+                    resources: [{ name: 'Understanding Your CIBIL Score', url: '#' }, { name: 'Debt Snowball vs. Avalanche Calculator', url: '#' }, { name: 'Debt Repayment Strategies', url: '#' }],
+                    takeaways: ["A good credit score saves you money.", "Pay your bills on time, every time.", "Distinguish between good debt and bad debt.", "Prioritize paying off high-interest 'bad debt' first."],
+                    interactive: { type: 'quiz', question: 'Which of the following is an example of "good debt"?', options: ['A home loan', 'Credit card spending on a holiday', 'A loan for a new TV'], correctAnswer: 'A home loan' }
+                },
+                '4': {
+                    title: 'Understanding Taxes',
+                    introduction: 'Taxes are a part of life, but they don’t have to be a mystery. Understanding the basics can help you save money and avoid trouble.',
+                    sections: [
+                        { heading: 'Why We Pay Taxes', content: 'Taxes are how the government funds public services like roads, public transport, hospitals, schools, and defense. It’s our contribution to the country’s development and functioning. Think of it as a collective subscription fee for living in an organized society.' },
+                        { heading: 'Key Tax Concepts', content: '• <strong>Gross Income:</strong> Your total income before any deductions. <br>• <strong>Deductions:</strong> Specific investments or expenses you can subtract from your gross income to reduce your tax liability (e.g., investments under Section 80C, health insurance premiums under 80D). <br>• <strong>Taxable Income:</strong> The final income on which your tax is actually calculated (Gross Income - Deductions). <br>• <strong>Tax Regimes:</strong> India offers an Old and a New tax regime. The Old Regime allows for many deductions but has higher tax rates. The New Regime has lower tax rates but you must forgo most deductions. You can choose whichever is more beneficial for you each financial year.' },
+                        { heading: 'How to Save Tax Legally', content: 'The government encourages saving and certain expenses by offering tax breaks. Some popular options include:<br>• <strong>Section 80C:</strong> Invest up to ₹1.5 lakh in options like PPF, ELSS mutual funds, NPS, Life Insurance premiums, etc.<br>• <strong>Section 80D:</strong> Get deductions on health insurance premiums paid for yourself, your family, and your parents.<br>• <strong>Home Loan:</strong> You can claim deductions on both the principal and interest components of your home loan payments.<br>• <strong>NPS:</strong> An additional deduction of ₹50,000 is available for investing in the National Pension System (NPS) under Section 80CCD(1B).' }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/MQpbxF_RngI',
+                    resources: [{ name: 'Tax Saving Investments Guide', url: '#' }, { name: 'Old vs New Tax Regime Calculator', url: '#' }, { name: 'Income Tax Slabs (Latest)', url: '#' }],
+                    takeaways: ["Taxes fund public services.", "Deductions lower your taxable income.", "Choose your tax regime wisely each year.", "Utilize tax-saving instruments like 80C and 80D."],
+                    interactive: { type: 'quiz', question: 'What is the primary purpose of a deduction?', options: ['To increase your income', 'To reduce your taxable income', 'To pay more tax'], correctAnswer: 'To reduce your taxable income' }
+                },
+                '5': {
+                    title: 'Insurance Explained',
+                    introduction: 'Insurance is your financial safety net. It protects you and your family from the financial impact of unexpected events.',
+                    sections: [
+                        { heading: 'How Insurance Works', content: 'You pay a regular amount called a "premium" to an insurance company. In return, the company agrees to pay a large, pre-defined sum of money (the "sum assured") if a specific event, like an accident, illness, or death, occurs. It’s a way of transferring a large, uncertain financial risk to the insurance company in exchange for a small, certain payment.' },
+                        { heading: 'Types of Essential Insurance', content: '• <strong>Health Insurance:</strong> Covers your medical expenses in case of hospitalization. With rising healthcare costs, this is absolutely essential to protect your savings. <br>• <strong>Life Insurance (Term Plan):</strong> This is the purest form of life insurance. It provides a large payout to your family if you pass away during the policy term, securing their financial future. It is inexpensive and has no investment component. <br>• <strong>Motor Insurance:</strong> Mandatory for all vehicles, it covers damages to your vehicle (Own Damage) and liability towards a third party (Third Party Liability). <br>• <strong>Personal Accident Insurance:</strong> Provides coverage against death or disability resulting from an accident.' },
+                        { heading: 'Insurance vs. Investment', content: 'A common mistake is mixing insurance with investment (e.g., ULIPs, Endowment Plans). These products often provide low insurance cover and poor investment returns compared to buying a pure term plan and investing the difference in mutual funds (like a SIP). For most people, it is best to <strong>keep insurance and investments separate.</strong> Use insurance for protection and use investments for wealth creation.' }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/xs7MNNqdN-o',
+                    resources: [{ name: 'How to Choose a Health Plan', url: '#' }, { name: 'Term Insurance vs. ULIPs', url: '#' }, { name: 'Human Life Value Calculator', url: '#' }],
+                    takeaways: ["Insurance is about protection, not investment.", "Health and Term Life insurance are crucial for everyone.", "Keep insurance and investments separate for better results.", "Review your coverage regularly as your life changes."],
+                    interactive: { type: 'quiz', question: 'What is the main purpose of life insurance?', options: ['To get rich quickly', 'To cover medical bills', 'To provide financial security to your family'], correctAnswer: 'To provide financial security to your family' }
+                },
+                '6': {
+                    title: 'Long-Term Financial Goals',
+                    introduction: 'Financial planning isn’t just about today; it’s about building the future you want. Let’s look at how to plan for major life goals.',
+                    sections: [
+                        { heading: 'Building an Emergency Fund', content: 'Before you even think about long-term goals, you need a safety net. An emergency fund is money set aside to cover unexpected financial shocks, like a job loss, medical emergency, or urgent home repair. Aim to save at least <strong>3 to 6 months\' worth of essential living expenses</strong> in a highly liquid account, like a savings account or a liquid mutual fund. This fund prevents you from going into debt or derailing your long-term investments when emergencies strike.' },
+                        { heading: 'Setting SMART Goals', content: 'Your financial goals should be SMART: <br>• <strong>Specific:</strong> What exactly do you want? (Not "save more," but "Buy a car"). <br>• <strong>Measurable:</strong> How much will it cost? (e.g., "A car worth ₹8,00,000"). <br>• <strong>Achievable:</strong> Is it realistic with your income and timeline? <br>• <strong>Relevant:</strong> Does it align with your life plans and values? <br>• <strong>Time-bound:</strong> By when do you want to achieve it? (e.g., "In 5 years"). A goal like "I will save ₹10,000 per month via a SIP for 5 years to accumulate ₹8,00,000 for a down payment on a house" is a SMART goal.' },
+                        { heading: 'Planning for Retirement', content: 'Retirement might seem far away, but the sooner you start, the better. Thanks to compounding, even small, regular investments in a pension plan (like NPS) or equity mutual funds can grow into a massive corpus over 30-40 years. The goal is to build a fund that can generate enough income to support your lifestyle when you stop working. Don\'t underestimate the power of starting in your 20s vs. your 30s – the difference in the final amount can be enormous.' }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/jLojCtQPmbk',
+                    resources: [{ name: 'Emergency Fund Calculator', url: '#' }, { name: 'Retirement Planning Calculator', url: '#' }, { name: 'Guide to Mutual Fund SIPs', url: '#' }],
+                    takeaways: ["Build an emergency fund of 3-6 months' expenses first.", "Set clear, SMART financial goals.", "Start saving for retirement as early as possible.", "Consistency is more important than timing the market."],
+                    interactive: { type: 'quiz', question: 'What does the "T" in SMART goals stand for?', options: ['Timing', 'Total', 'Time-bound'], correctAnswer: 'Time-bound' }
+                }
+            };
+
+            const mainContainer = document.getElementById('chapter-content-container');
+
+            function renderChapter() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('id') || '1';
+                const chapter = chaptersData[chapterId];
+
+                if (!chapter) {
+                    mainContainer.innerHTML = `<div class="text-center"><h1 class="text-3xl font-bold">Chapter not found!</h1><a href="learn.html" class="text-indigo-600 hover:underline mt-4 inline-block">&larr; Back to Learn</a></div>`;
+                    return;
+                }
+
+                // --- Build Accordion HTML ---
+                let accordionHTML = '';
+                chapter.sections.forEach((section, index) => {
+                    accordionHTML += `
+                        <details class="group border-b last:border-b-0" ${index === 0 ? 'open' : ''}>
+                            <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-lg text-gray-800">${section.heading}</span>
+                                <svg class="w-5 h-5 accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </summary>
+                            <div class="p-4 pt-0 text-gray-700 leading-relaxed">
+                                ${section.content}
+                            </div>
+                        </details>
+                    `;
+                });
+
+                // --- Build Resources HTML ---
+                let resourcesHTML = '';
+                chapter.resources.forEach(resource => {
+                    resourcesHTML += `
+                         <a href="${resource.url}" target="_blank" class="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                             <svg class="w-5 h-5 text-indigo-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                             <span>${resource.name}</span>
+                         </a>
+                    `;
+                });
+                accordionHTML += `
+                         <details class="group border-b last:border-b-0">
+                             <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                                 <span class="font-semibold text-lg text-gray-800">Helpful Resources</span>
+                                 <svg class="w-5 h-5 accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                             </summary>
+                             <div class="p-4 pt-0 space-y-2">
+                                 ${resourcesHTML}
+                             </div>
+                         </details>
+                `;
+
+                // --- Build Quiz HTML ---
+                let interactiveHTML = '';
+                if (chapter.interactive.type === 'quiz') {
+                    let optionsHTML = '';
+                    chapter.interactive.options.forEach(option => {
+                        optionsHTML += `
+                            <div>
+                                <input type="radio" name="quiz" id="${option}" value="${option}" class="quiz-option hidden">
+                                <label for="${option}" class="cursor-pointer border-2 border-gray-300 rounded-lg p-3 flex items-center w-full transition hover:border-indigo-400">${option}</label>
+                            </div>
+                        `;
+                    });
+                    interactiveHTML = `
+                        <div class="p-4">
+                            <h4 class="font-semibold mb-3 text-gray-700">${chapter.interactive.question}</h4>
+                            <div id="quiz-options" class="space-y-3">${optionsHTML}</div>
+                            <div id="quiz-feedback" class="mt-4 text-center font-semibold"></div>
+                        </div>
+                    `;
+                    accordionHTML += `
+                          <details class="group border-b-0">
+                              <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                                  <span class="font-semibold text-lg text-gray-800">Knowledge Check!</span>
+                                  <svg class="w-5 h-5 accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                              </summary>
+                              ${interactiveHTML}
+                          </details>
+                      `;
+                }
+
+                // --- Build Key Takeaways HTML ---
+                let takeawaysHTML = '';
+                chapter.takeaways.forEach(takeaway => {
+                    takeawaysHTML += `
+                        <li class="flex items-start">
+                            <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            <span>${takeaway}</span>
+                        </li>
+                    `;
+                });
+
+                // --- Final Assembly ---
+                const chapterHTML = `
+                    <a href="learn.html" class="text-indigo-600 hover:underline mb-4 inline-block">&larr; Back to All Chapters</a>
+                    
+                    <div class="mb-6">
+                        <h1 class="text-4xl lg:text-5xl font-bold text-gray-900">${chapter.title}</h1>
+                        <p class="mt-2 text-lg text-gray-600">Overall progress: 21.29%</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 21.29%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                        <div class="lg:col-span-1 space-y-6 lg:sticky top-24 self-start">
+                            <div class="bg-black rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                                <div class="aspect-w-16 aspect-h-9">
+                                    <iframe class="w-full h-full" src="${chapter.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                                <h3 class="text-xl font-bold mb-4 text-gray-800">Key Takeaways</h3>
+                                <ul class="space-y-3 text-gray-700">${takeawaysHTML}</ul>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <p class="text-lg text-gray-600 leading-relaxed">${chapter.introduction}</p>
+                            <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                ${accordionHTML}
+                            </div>
+                             <div class="mt-8 flex justify-between">
+                                 <a href="?id=${parseInt(chapterId) - 1}" id="prev-btn" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center">
+                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                     Previous
+                                 </a>
+                                 <a href="?id=${parseInt(chapterId) + 1}" id="next-btn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition font-semibold flex items-center">
+                                     Next Chapter
+                                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                 </a>
+                             </div>
+                        </div>
+                    </div>
+                `;
+
+                mainContainer.innerHTML = chapterHTML;
+
+                setupQuizListener(chapter);
+                updateNavButtons(chapterId);
+            }
+
+            function setupQuizListener(chapter) {
+                if (chapter.interactive.type === 'quiz') {
+                    const optionsContainer = document.getElementById('quiz-options');
+                    const feedbackEl = document.getElementById('quiz-feedback');
+                    optionsContainer.addEventListener('change', (e) => {
+                        if (e.target.name === 'quiz') {
+                            if (e.target.value === chapter.interactive.correctAnswer) {
+                                feedbackEl.textContent = "That's correct! Well done.";
+                                feedbackEl.className = 'mt-4 text-center font-semibold text-green-600';
+                            } else {
+                                feedbackEl.textContent = "Not quite, try again!";
+                                feedbackEl.className = 'mt-4 text-center font-semibold text-red-600';
+                            }
+                        }
+                    });
+                }
+            }
+
+            function updateNavButtons(currentId) {
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                const numCurrentId = parseInt(currentId);
+
+                if (!chaptersData[numCurrentId - 1]) {
+                    prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    prevBtn.href = '#';
+                }
+                if (!chaptersData[numCurrentId + 1]) {
+                    nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    nextBtn.href = '#';
+                }
+            }
+
+            renderChapter();
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSmart - Financial Literacy Portal</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        // --- Authentication & Navigation Guard ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // --- Function to fetch user data and update the page ---
+        function displayUserData() {
+            const userName = sessionStorage.getItem('userName') || 'Student';
+            const welcomeHeading = document.getElementById('welcome-heading');
+            welcomeHeading.textContent = `Welcome back, ${userName}!`;
+        }
+
+        // --- This function runs after the page content has loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fetch and display user's name
+            displayUserData();
+
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+
+            // Determine the correct "Learn" page based on the stored age
+            if (userAge >= 12 && userAge < 16) {
+                learnLink.href = 'learn_juniors.html';
+            } else if (userAge >= 16 && userAge < 18) {
+                learnLink.href = 'learn_seniors.html';
+            } else {
+                learnLink.href = 'learn.html';
+            }
+
+            // Add functionality to the logout button
+            const logoutBtn = document.getElementById('logout-btn');
+            logoutBtn.addEventListener('click', () => {
+                sessionStorage.clear(); // Clear all session data
+                window.location.href = 'login.html';
+            });
+            const ctaLearnBtn = document.getElementById('cta-learn-btn');
+            if (ctaLearnBtn) {
+                // We can reuse the same logic
+                ctaLearnBtn.href = learnLink.href;
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        /* Animation for cards */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-card {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+            /* Start hidden */
+        }
+
+        /* Staggered animation delays */
+        .dashboard-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .dashboard-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dashboard-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .dashboard-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        /* SVG Chart Animation */
+        .chart-circle-progress {
+            stroke-dasharray: 283;
+            /* 2 * PI * 45 */
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        .chart-bar {
+            transition: height 1s ease-out;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://cdn.v1ggs.lol/assets/fin_favicon.png"
+                        alt="FinSmart Logo">
+                    <span class="font-bold text-xl text-indigo-600">FinSmart</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="index.html" id="nav-dashboard"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" id="nav-learn"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Learn</a>
+                        <a href="tools.html" id="nav-tools"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Tools</a>
+                        <a href="challenges.html" id="nav-challenges"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Challenges</a>
+                        <button id="logout-btn"
+                            class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content" class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <div class="px-4">
+            <h1 id="welcome-heading" class="text-3xl font-bold text-gray-900">Welcome back...</h1>
+            <p class="mt-2 text-lg text-gray-600">Here's a snapshot of your financial health.</p>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+
+            <div
+                class="dashboard-card bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 lg:col-span-1">
+                <h3 class="text-lg font-medium text-gray-500">Your Net Worth</h3>
+                <p class="mt-2 text-4xl font-bold text-indigo-600">₹ 10,299</p>
+                <div class="mt-2 flex items-center text-sm text-green-500 font-semibold">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                    </svg>
+                    <span>+ 5.2% this month</span>
+                </div>
+            </div>
+
+            <div
+                class="dashboard-card bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 lg:col-span-1 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-medium text-gray-500 mb-4">Savings Goal</h3>
+                <div class="relative">
+                    <svg class="w-32 h-32 transform -rotate-90">
+                        <circle class="text-gray-200" stroke-width="10" stroke="currentColor" fill="transparent" r="45"
+                            cx="64" cy="64" />
+                        <circle id="savings-circle" class="text-green-500 chart-circle-progress" stroke-width="10"
+                            stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="64" cy="64" />
+                    </svg>
+                    <span id="savings-percent"
+                        class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-gray-800">75%</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card bg-white p-6 rounded-xl shadow-lg lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Monthly Spending</h3>
+                    <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">View Report</a>
+                </div>
+
+                <div class="space-y-5">
+
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-red-100 text-red-600 rounded-lg p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            <p class="font-bold text-gray-700">Food & Dining</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <p class="ml-4 font-semibold text-gray-800">$420</p>
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-blue-100 text-blue-600 rounded-lg p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 2h8l2-2zM5 11h6" />
+                            </svg>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            <p class="font-bold text-gray-700">Transportation</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 40%"></div>
+                            </div>
+                        </div>
+                        <p class="ml-4 font-semibold text-gray-800">$150</p>
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-yellow-100 text-yellow-600 rounded-lg p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-4 flex-grow">
+                            <p class="font-bold text-gray-700">Entertainment</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <p class="ml-4 font-semibold text-gray-800">$210</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <div
+                class="dashboard-card bg-indigo-600 text-white p-6 rounded-xl shadow-lg lg:col-span-4 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold">Ready for the Next Step?</h3>
+                    <p class="text-indigo-200">Dive into new lessons or use our financial tools to plan your future.</p>
+                </div>
+                <div class="flex-shrink-0 flex space-x-4">
+                    <a href="#" id="cta-learn-btn"
+                        class="bg-white text-indigo-600 font-semibold px-6 py-2 rounded-lg hover:bg-indigo-100 transition text-center">
+                        Explore Lessons
+                    </a>
+                    <a href="tools.html"
+                        class="bg-indigo-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-indigo-400 transition text-center">
+                        Use Financial Tools
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set the active navigation link
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'index.html' || currentPage === '') {
+                document.getElementById('nav-dashboard').classList.add('active');
+            }
+
+            // Animate savings circle
+            const savingsCircle = document.getElementById('savings-circle');
+            const savingsPercent = 75; // Dummy data
+            const circumference = 2 * Math.PI * 45;
+            const offset = circumference - (savingsPercent / 100) * circumference;
+
+            // Trigger animation after a short delay
+            setTimeout(() => {
+                savingsCircle.style.strokeDashoffset = offset;
+            }, 500);
+        });
+    </script>
+
+</body>
+
+</html>

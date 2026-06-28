@@ -1,0 +1,36 @@
+/* dashboard-dark.css */
+[data-theme="dark"] body.bg-gray-50 {
+    background-color: #0D1321 !important;
+    color: #E8EAF6 !important;
+}
+[data-theme="dark"] .bg-white {
+    background-color: #1A1F36 !important;
+}
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-700 {
+    color: #E8EAF6 !important;
+}
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500 {
+    color: #B0BEC5 !important;
+}
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-100 {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+[data-theme="dark"] .bg-gray-100 {
+    background-color: rgba(255,255,255, 0.05) !important;
+}
+[data-theme="dark"] .hover\:bg-gray-50:hover,
+[data-theme="dark"] .hover\:bg-gray-100:hover,
+[data-theme="dark"] .hover\:text-gray-900:hover {
+    background-color: rgba(255,255,255, 0.1) !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .text-indigo-600 {
+    color: #8c9eff !important; /* Lighter indigo for dark mode */
+}
+[data-theme="dark"] .bg-indigo-50 {
+    background-color: rgba(79, 70, 229, 0.15) !important;
+}

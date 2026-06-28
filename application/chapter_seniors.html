@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter - FinSmart</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .quiz-option:checked+label {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+            font-weight: 600;
+        }
+
+        /* Accordion styles */
+        details>summary {
+            list-style: none;
+            cursor: pointer;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details .accordion-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        details[open]>summary {
+            background-color: #f9fafb;
+        }
+
+        details[open] .accordion-arrow {
+            transform: rotate(90deg);
+        }
+    </style>
+    <script>
+
+        // --- Authentication & Navigation Guard (Runs immediately) ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // --- This runs after the page content is loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Active Link Highlighting (Automatic) ---
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'index.html' || currentPage === '') {
+                document.getElementById('nav-dashboard')?.classList.add('active');
+            } else if (currentPage.startsWith('learn')) { // Handles learn.html, learn_juniors.html, etc.
+                document.getElementById('nav-learn')?.classList.add('active');
+            } else if (currentPage === 'tools.html') {
+                document.getElementById('nav-tools')?.classList.add('active');
+            } else if (currentPage === 'challenges.html') {
+                document.getElementById('nav-challenges')?.classList.add('active');
+            }
+
+            // --- Dynamic "Learn" Link Logic ---
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+            if (learnLink) {
+                if (userAge >= 12 && userAge < 16) {
+                    learnLink.href = 'learn_juniors.html';
+                } else if (userAge >= 16 && userAge < 18) {
+                    learnLink.href = 'learn_seniors.html';
+                } else {
+                    learnLink.href = 'learn.html';
+                }
+            }
+
+            // --- Logout Button Functionality ---
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // --- Your other page-specific JavaScript can go here ---
+            // For example, on challenges.html, the code for rendering challenge cards would follow.
+        });
+    </script>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="text-gray-800">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://cdn.v1ggs.lol/assets/fin_favicon.png"
+                        alt="FinSmart Logo">
+                    <span class="font-bold text-xl text-indigo-600">FinSmart</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="index.html" id="nav-dashboard"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" id="nav-learn"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Learn</a>
+                        <a href="tools.html" id="nav-tools"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Tools</a>
+                        <a href="challenges.html" id="nav-challenges"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Challenges</a>
+                        <button id="logout-btn"
+                            class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main id="chapter-content-container" class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set active nav link
+            document.getElementById('nav-learn').classList.add('active');
+
+            // --- CHAPTER DATA (EXPANDED) ---
+            const chaptersData = {
+                '1': {
+                    title: 'Your First Bank Account',
+                    introduction: 'Opening your first bank account is a big milestone in your financial journey. It provides a safe place to store your money, makes it easy to receive payments or salaries, and allows you to make secure transfers and payments without carrying cash. A bank account also helps you track your income and expenses, giving you better control over your finances. Over time, it can open doors to other financial products like loans, credit cards, and investment options.',
+                    sections: [
+                        {
+                            heading: 'Why You Need a Bank Account',
+                            content: 'A bank account keeps your money safe from theft, loss, or damage while giving you convenient access when needed. It allows direct deposits from employers or clients, lets you transfer funds securely, and makes bill payments simple and fast. All your transactions are recorded, which helps you track spending and build a financial history that is useful for getting loans or credit cards. Some accounts even offer interest on your balance, helping your money grow while it stays protected.'
+                        },
+                        {
+                            heading: 'Types of Bank Accounts',
+                            content: 'Banks offer different types of accounts to suit various needs. A savings account is ideal for storing money while earning interest, with easy access to funds. A current account is designed for frequent transactions, often used by businesses, and usually does not pay interest. Fixed deposits allow you to lock in your money for a set period at higher interest rates, while recurring deposits let you invest a fixed amount every month to build savings steadily. Salary accounts, provided by employers, often come with extra benefits like zero minimum balance requirements.'
+                        },
+                        {
+                            heading: 'How to Open a Bank Account',
+                            content: 'Opening a bank account is straightforward but requires a few essential steps. You will need valid identification, proof of address, and passport-sized photographs. Most banks let you choose between different account types based on your needs. Today, many banks also offer online account opening, where you can submit documents digitally and verify your identity through video calls. Once your account is active, you will receive account details, an ATM or debit card, and instructions on how to manage your account securely.'
+                        },
+                        {
+                            heading: 'Tips for Managing Your First Account',
+                            content: 'Once your account is open, it is important to manage it wisely. Always keep track of your balance to avoid overdrafts or penalties. Use online banking and mobile apps to monitor transactions regularly. Be cautious with sharing your account details and never disclose your PIN or passwords to anyone. If your account offers interest, try to maintain a healthy balance to make the most of it. Most importantly, build the habit of saving a portion of your income, no matter how small, to create a financial cushion for the future.'
+                        }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/O4-MtfawzAY',
+                    resources: [
+                        { name: 'Budgeting Worksheet (PDF)', url: 'https://consumer.gov/sites/default/files/pdf-1020-make-budget-worksheet_form.pdf' },
+                        { name: 'Guide to Budgeting Apps', url: '#' },
+                        { name: 'Sample 50/30/20 Budget', url: '#' }
+                    ],
+                    takeaways: [
+                        'A bank account keeps your money safe and accessible.',
+                        'Different types of accounts serve different purposes.',
+                        'Opening an account requires identification and proof of address.',
+                        'Good account management builds healthy financial habits.'
+                    ],
+                    interactive: {
+                        type: 'quiz',
+                        question: 'If you open a savings account with ₹5,000 and it offers 4% annual interest, how much interest will you earn in one year?',
+                        options: ['₹200', '₹400', '₹500'],
+                        correctAnswer: '₹200'
+                    }
+                },
+
+                '2': {
+                    title: 'UPI & Digital Wallets',
+                    introduction: 'UPI (Unified Payments Interface) and digital wallets have transformed the way people send, receive, and store money. These tools make payments instant, cashless, and convenient, reducing the need to carry physical cash or cards. With just a smartphone, you can pay bills, shop online, transfer funds, and even split expenses with friends in seconds.',
+                    sections: [
+                        {
+                            heading: 'What is UPI?',
+                            content: 'UPI is a real-time payment system developed by the National Payments Corporation of India that allows you to transfer money between bank accounts instantly, 24/7. It works through mobile apps provided by banks or payment platforms like Google Pay, PhonePe, and Paytm. All you need is a UPI ID or QR code to send and receive money, making it faster and more convenient than traditional methods like NEFT or IMPS.'
+                        },
+                        {
+                            heading: 'What are Digital Wallets?',
+                            content: 'A digital wallet is a mobile application that stores your payment information securely so you can make transactions without needing your physical card or cash. Popular digital wallets in India include Paytm Wallet, Amazon Pay, and PhonePe Wallet. They allow you to store money digitally, pay for goods and services, and often come with cashback offers, rewards, or discounts.'
+                        },
+                        {
+                            heading: 'Advantages of UPI & Digital Wallets',
+                            content: 'These payment methods offer unmatched convenience by allowing you to pay or transfer funds instantly from anywhere. They reduce the risk of theft or loss compared to carrying cash. UPI transactions are free or have minimal charges, and digital wallets often provide rewards, cashback, and exclusive offers. They also make tracking expenses easier since all transactions are recorded in the app.'
+                        },
+                        {
+                            heading: 'Safety Tips for Using UPI & Digital Wallets',
+                            content: 'While these payment methods are secure, users must follow safety practices to protect their money. Never share your UPI PIN or OTP with anyone. Verify recipient details before making a payment, and use only official, verified apps. Enable device security features like biometric locks and avoid using public Wi-Fi for financial transactions to minimize the risk of fraud.'
+                        }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/f6y2xG8p7t4',
+                    resources: [
+                        { name: 'Official UPI Website', url: 'https://www.npci.org.in/what-we-do/upi/product-overview' },
+                        { name: 'Guide to Safe Digital Payments', url: '#' },
+                        { name: 'How to Set Up a Digital Wallet', url: '#' }
+                    ],
+                    takeaways: [
+                        'UPI enables instant bank-to-bank transfers.',
+                        'Digital wallets store money for quick payments.',
+                        'These methods are fast, convenient, and reduce cash usage.',
+                        'Following safety tips is crucial to avoid fraud.'
+                    ],
+                    interactive: {
+                        type: 'quiz',
+                        question: 'Which of these is required to complete a UPI payment?',
+                        options: ['UPI ID or QR code', 'Credit score', 'PAN card'],
+                        correctAnswer: 'UPI ID or QR code'
+                    }
+                },
+
+
+                '3': {
+                    title: 'Earning Your Own Money',
+                    introduction: 'Earning your own money is an important step toward independence and financial responsibility. Whether through part-time jobs, freelancing, or running a small business, having your own income allows you to manage expenses, save for goals, and build good financial habits early in life. It also teaches valuable skills like time management, communication, and problem-solving.',
+                    sections: [
+                        {
+                            heading: 'Why Start Earning Early?',
+                            content: 'Earning at a young age gives you a head start in understanding the value of money. It allows you to experience budgeting, saving, and making spending decisions based on your own earnings. It also builds confidence and work experience, which can be beneficial for your future career.'
+                        },
+                        {
+                            heading: 'Ways to Earn Money',
+                            content: 'There are many ways to earn depending on your skills and available time. Students often take part-time jobs such as tutoring, working in retail, or assisting in family businesses. Online options like freelancing, content creation, and selling products on e-commerce platforms have also become popular. The key is to find something that matches your abilities and schedule.'
+                        },
+                        {
+                            heading: 'Benefits of Earning Your Own Money',
+                            content: 'When you earn your own income, you gain financial independence and the ability to make your own choices. You learn to prioritize spending, save for future goals, and avoid relying solely on others for money. The discipline developed through work can also help you in academics and personal life.'
+                        },
+                        {
+                            heading: 'Managing Your First Income',
+                            content: 'Your first earnings can be exciting, but it is important to manage them wisely. Create a simple budget that allocates money toward savings, essentials, and personal spending. Avoid overspending just because you have extra cash, and consider starting an emergency fund to prepare for unexpected expenses.'
+                        }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/2_W0tEu0csY',
+                    resources: [
+                        { name: 'Guide to Part-Time Jobs for Students', url: '#' },
+                        { name: 'Beginner’s Guide to Freelancing', url: '#' },
+                        { name: 'How to Start a Small Business', url: '#' }
+                    ],
+                    takeaways: [
+                        'Earning early builds independence and responsibility.',
+                        'Choose work that suits your skills and schedule.',
+                        'Manage your income with a simple budget.',
+                        'Save and plan for both short-term and long-term goals.'
+                    ],
+                    interactive: {
+                        type: 'quiz',
+                        question: 'If you earn ₹5,000 from a part-time job, what is a good first step?',
+                        options: ['Spend it all immediately', 'Save a portion and budget the rest', 'Give it all to friends'],
+                        correctAnswer: 'Save a portion and budget the rest'
+                    }
+                },
+
+
+                '4': {
+                    title: 'Smart Saving Strategies',
+                    introduction: 'Saving money is more than just setting aside what is left after spending — it is about planning and making deliberate choices to secure your financial future. Smart saving strategies help you prepare for emergencies, achieve your goals faster, and build wealth over time. By following proven methods, you can make saving a consistent and rewarding habit.',
+                    sections: [
+                        {
+                            heading: 'Why Saving Matters',
+                            content: 'Saving is the foundation of financial security. It protects you during unexpected situations such as job loss or medical emergencies. Having savings also allows you to take advantage of opportunities, like starting a business or investing, without relying on loans or credit.'
+                        },
+                        {
+                            heading: 'Pay Yourself First',
+                            content: 'One of the simplest and most effective strategies is to pay yourself first. This means setting aside a fixed portion of your income for savings before you spend on anything else. Treat your savings like a non-negotiable monthly expense.'
+                        },
+                        {
+                            heading: 'Automate Your Savings',
+                            content: 'Automating your savings ensures that money is transferred directly from your income to a savings or investment account without you having to think about it. This reduces the temptation to spend and makes saving effortless.'
+                        },
+                        {
+                            heading: 'Set Clear Goals',
+                            content: 'Having specific goals, such as saving for a vacation, education, or a home, makes it easier to stay motivated. Break your goal into smaller monthly targets and track your progress regularly.'
+                        }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/v=IIKr2915l2g',
+                    resources: [
+                        { name: '50/30/20 Budgeting Rule', url: '#' },
+                        { name: 'How to Build an Emergency Fund', url: '#' },
+                        { name: 'Automating Your Savings Guide', url: '#' }
+                    ],
+                    takeaways: [
+                        'Saving is the first step toward financial security.',
+                        'Pay yourself first to make saving a habit.',
+                        'Automate savings to avoid the temptation to spend.',
+                        'Set specific goals to stay motivated and on track.'
+                    ],
+                    interactive: {
+                        type: 'quiz',
+                        question: 'If you earn ₹20,000 a month, how much should you save first using the "Pay Yourself First" method (at 20%)?',
+                        options: ['₹2,000', '₹4,000', '₹6,000'],
+                        correctAnswer: '₹4,000'
+                    }
+                },
+
+                '5': {
+                    title: 'Building Good Credit Habits',
+                    introduction: 'Your credit history is like a financial report card that lenders use to decide whether to trust you with money. Building good credit habits early can open doors to loans, credit cards, rental agreements, and even job opportunities. Good credit also means you may pay less in interest over time, saving you thousands of rupees.',
+                    sections: [
+                        {
+                            heading: 'Why Good Credit Matters',
+                            content: 'A strong credit score increases your chances of loan approval, helps you get better interest rates, and even impacts non-financial aspects like renting a house. It shows lenders and service providers that you are responsible with money.'
+                        },
+                        {
+                            heading: 'Pay Bills on Time',
+                            content: 'Payment history is one of the biggest factors in your credit score. Always pay bills before their due dates — whether it’s a credit card, utility bill, or loan installment. Setting reminders or automating payments can help you stay consistent.'
+                        },
+                        {
+                            heading: 'Keep Credit Utilization Low',
+                            content: 'If you have a credit card, try to use less than 30% of your credit limit. High usage signals risk to lenders, even if you pay off the balance in full each month.'
+                        },
+                        {
+                            heading: 'Avoid Too Many Credit Applications',
+                            content: 'Applying for multiple loans or credit cards in a short time can hurt your credit score. Apply only when you truly need it, and focus on maintaining the accounts you already have.'
+                        }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/l4USGndZGUo',
+                    resources: [
+                        { name: 'Understanding Your Credit Score', url: '#' },
+                        { name: 'Tips to Improve Credit Fast', url: '#' },
+                        { name: 'Credit Report Checklist', url: '#' }
+                    ],
+                    takeaways: [
+                        'Good credit opens financial opportunities.',
+                        'Pay bills on time to build a positive history.',
+                        'Keep credit usage below 30%.',
+                        'Limit unnecessary credit applications.'
+                    ],
+                    interactive: {
+                        type: 'quiz',
+                        question: 'If your credit card limit is ₹60,000, what is the maximum amount you should ideally use at a time to keep utilization below 30%?',
+                        options: ['₹10,000', '₹18,000', '₹25,000'],
+                        correctAnswer: '₹18,000'
+                    }
+                },
+
+                '6': {
+                    title: 'Planning for College and Beyond',
+                    introduction: 'College is one of the biggest investments you will make in your life, both in time and money. Planning ahead can reduce stress, help you avoid unnecessary debt, and prepare you for life after graduation. A clear plan will give you the confidence to pursue your goals while keeping your finances in check.',
+                    sections: [
+                        {
+                            heading: 'Estimate the Costs',
+                            content: 'Start by researching tuition fees, accommodation, books, and other expenses for your chosen college. Don’t forget to include daily living costs and potential travel expenses if you will be studying away from home.'
+                        },
+                        {
+                            heading: 'Explore Scholarships and Financial Aid',
+                            content: 'Many colleges, governments, and private organizations offer scholarships, grants, and work-study programs. Apply early and widely to increase your chances of receiving assistance.'
+                        },
+                        {
+                            heading: 'Budget for Student Life',
+                            content: 'Create a realistic monthly budget that covers your needs while leaving room for savings. Keep track of your spending to avoid falling into debt during your studies.'
+                        },
+                        {
+                            heading: 'Think Beyond Graduation',
+                            content: 'Consider how your chosen field of study aligns with career opportunities and potential income. Start networking, taking internships, and building skills that will be valuable in the job market.'
+                        }
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/28FMPE2tH80',
+                    resources: [
+                        { name: 'College Budget Planner', url: '#' },
+                        { name: 'Scholarship Search Guide', url: '#' },
+                        { name: 'Career Planning Workbook', url: '#' }
+                    ],
+                    takeaways: [
+                        'Plan early to reduce financial stress.',
+                        'Research all possible scholarships and aid.',
+                        'Budget wisely to avoid student debt.',
+                        'Prepare for your career before graduation.'
+                    ],
+                    interactive: {
+                        type: 'quiz',
+                        question: 'If tuition is ₹1,20,000 per year and you have a scholarship covering ₹50,000, how much will you still need to pay?',
+                        options: ['₹60,000', '₹70,000', '₹80,000'],
+                        correctAnswer: '₹70,000'
+                    }
+                },
+            };
+
+            const mainContainer = document.getElementById('chapter-content-container');
+
+            function renderChapter() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chapterId = urlParams.get('id') || '1';
+                const chapter = chaptersData[chapterId];
+
+                if (!chapter) {
+                    mainContainer.innerHTML = `<div class="text-center"><h1 class="text-3xl font-bold">Chapter not found!</h1><a href="learn.html" class="text-indigo-600 hover:underline mt-4 inline-block">&larr; Back to Learn</a></div>`;
+                    return;
+                }
+
+                // --- Build Accordion HTML ---
+                let accordionHTML = '';
+                chapter.sections.forEach((section, index) => {
+                    accordionHTML += `
+                        <details class="group border-b last:border-b-0" ${index === 0 ? 'open' : ''}>
+                            <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-lg text-gray-800">${section.heading}</span>
+                                <svg class="w-5 h-5 accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </summary>
+                            <div class="p-4 pt-0 text-gray-700 leading-relaxed">
+                                ${section.content}
+                            </div>
+                        </details>
+                    `;
+                });
+
+                // --- Build Resources HTML ---
+                let resourcesHTML = '';
+                chapter.resources.forEach(resource => {
+                    resourcesHTML += `
+                         <a href="${resource.url}" target="_blank" class="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                             <svg class="w-5 h-5 text-indigo-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                             <span>${resource.name}</span>
+                         </a>
+                    `;
+                });
+                accordionHTML += `
+                         <details class="group border-b last:border-b-0">
+                             <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                                 <span class="font-semibold text-lg text-gray-800">Helpful Resources</span>
+                                 <svg class="w-5 h-5 accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                             </summary>
+                             <div class="p-4 pt-0 space-y-2">
+                                 ${resourcesHTML}
+                             </div>
+                         </details>
+                `;
+
+                // --- Build Quiz HTML ---
+                let interactiveHTML = '';
+                if (chapter.interactive.type === 'quiz') {
+                    let optionsHTML = '';
+                    chapter.interactive.options.forEach(option => {
+                        optionsHTML += `
+                            <div>
+                                <input type="radio" name="quiz" id="${option}" value="${option}" class="quiz-option hidden">
+                                <label for="${option}" class="cursor-pointer border-2 border-gray-300 rounded-lg p-3 flex items-center w-full transition hover:border-indigo-400">${option}</label>
+                            </div>
+                        `;
+                    });
+                    interactiveHTML = `
+                        <div class="p-4">
+                            <h4 class="font-semibold mb-3 text-gray-700">${chapter.interactive.question}</h4>
+                            <div id="quiz-options" class="space-y-3">${optionsHTML}</div>
+                            <div id="quiz-feedback" class="mt-4 text-center font-semibold"></div>
+                        </div>
+                    `;
+                    accordionHTML += `
+                          <details class="group border-b-0">
+                              <summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                                  <span class="font-semibold text-lg text-gray-800">Knowledge Check!</span>
+                                  <svg class="w-5 h-5 accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                              </summary>
+                              ${interactiveHTML}
+                          </details>
+                      `;
+                }
+
+                // --- Build Key Takeaways HTML ---
+                let takeawaysHTML = '';
+                chapter.takeaways.forEach(takeaway => {
+                    takeawaysHTML += `
+                        <li class="flex items-start">
+                            <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                            <span>${takeaway}</span>
+                        </li>
+                    `;
+                });
+
+                // --- Final Assembly ---
+                const chapterHTML = `
+                    <a href="learn.html" class="text-indigo-600 hover:underline mb-4 inline-block">&larr; Back to All Chapters</a>
+                    
+                    <div class="mb-6">
+                        <h1 class="text-4xl lg:text-5xl font-bold text-gray-900">${chapter.title}</h1>
+                        <p class="mt-2 text-lg text-gray-600">Overall progress: 21.29%</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 21.29%"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                        <div class="lg:col-span-1 space-y-6 lg:sticky top-24 self-start">
+                            <div class="bg-black rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                                <div class="aspect-w-16 aspect-h-9">
+                                    <iframe class="w-full h-full" src="${chapter.videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                                <h3 class="text-xl font-bold mb-4 text-gray-800">Key Takeaways</h3>
+                                <ul class="space-y-3 text-gray-700">${takeawaysHTML}</ul>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <p class="text-lg text-gray-600 leading-relaxed">${chapter.introduction}</p>
+                            <div class="mt-8 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                ${accordionHTML}
+                            </div>
+                             <div class="mt-8 flex justify-between">
+                                 <a href="?id=${parseInt(chapterId) - 1}" id="prev-btn" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center">
+                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                     Previous
+                                 </a>
+                                 <a href="?id=${parseInt(chapterId) + 1}" id="next-btn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition font-semibold flex items-center">
+                                     Next Chapter
+                                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                 </a>
+                             </div>
+                        </div>
+                    </div>
+                `;
+
+                mainContainer.innerHTML = chapterHTML;
+
+                setupQuizListener(chapter);
+                updateNavButtons(chapterId);
+            }
+
+            function setupQuizListener(chapter) {
+                if (chapter.interactive.type === 'quiz') {
+                    const optionsContainer = document.getElementById('quiz-options');
+                    const feedbackEl = document.getElementById('quiz-feedback');
+                    optionsContainer.addEventListener('change', (e) => {
+                        if (e.target.name === 'quiz') {
+                            if (e.target.value === chapter.interactive.correctAnswer) {
+                                feedbackEl.textContent = "That's correct! Well done.";
+                                feedbackEl.className = 'mt-4 text-center font-semibold text-green-600';
+                            } else {
+                                feedbackEl.textContent = "Not quite, try again!";
+                                feedbackEl.className = 'mt-4 text-center font-semibold text-red-600';
+                            }
+                        }
+                    });
+                }
+            }
+
+            function updateNavButtons(currentId) {
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                const numCurrentId = parseInt(currentId);
+
+                if (!chaptersData[numCurrentId - 1]) {
+                    prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    prevBtn.href = '#';
+                }
+                if (!chaptersData[numCurrentId + 1]) {
+                    nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    nextBtn.href = '#';
+                }
+            }
+
+            renderChapter();
+        });
+    </script>
+
+</body>
+
+</html>

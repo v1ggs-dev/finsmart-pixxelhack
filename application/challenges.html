@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenges - FinSmart</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        /* Card Styles */
+        .challenge-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left-width: 4px;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Difficulty Colors */
+        .difficulty-easy {
+            border-color: #34d399;
+            /* emerald-400 */
+        }
+
+        .difficulty-medium {
+            border-color: #fbbf24;
+            /* amber-400 */
+        }
+
+        .difficulty-hard {
+            border-color: #f87171;
+            /* red-400 */
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* Smart Shopper Item Styles */
+        .product-card.selected {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.5);
+        }
+    </style>
+    <script>
+
+        // --- Authentication & Navigation Guard (Runs immediately) ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // --- This runs after the page content is loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Active Link Highlighting (Automatic) ---
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'index.html' || currentPage === '') {
+                document.getElementById('nav-dashboard')?.classList.add('active');
+            } else if (currentPage.startsWith('learn')) { // Handles learn.html, learn_juniors.html, etc.
+                document.getElementById('nav-learn')?.classList.add('active');
+            } else if (currentPage === 'tools.html') {
+                document.getElementById('nav-tools')?.classList.add('active');
+            } else if (currentPage === 'challenges.html') {
+                document.getElementById('nav-challenges')?.classList.add('active');
+            }
+
+            // --- Dynamic "Learn" Link Logic ---
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+            if (learnLink) {
+                if (userAge >= 12 && userAge < 16) {
+                    learnLink.href = 'learn_juniors.html';
+                } else if (userAge >= 16 && userAge < 18) {
+                    learnLink.href = 'learn_seniors.html';
+                } else {
+                    learnLink.href = 'learn.html';
+                }
+            }
+
+            // --- Logout Button Functionality ---
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // --- Your other page-specific JavaScript can go here ---
+            // For example, on challenges.html, the code for rendering challenge cards would follow.
+        });
+    </script>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://cdn.v1ggs.lol/assets/fin_favicon.png"
+                        alt="FinSmart Logo">
+                    <span class="font-bold text-xl text-indigo-600">FinSmart</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="index.html" id="nav-dashboard"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" id="nav-learn"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Learn</a>
+                        <a href="tools.html" id="nav-tools"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Tools</a>
+                        <a href="challenges.html" id="nav-challenges"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Challenges</a>
+                        <button id="logout-btn"
+                            class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <div class="text-center px-4">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Financial Challenges</h1>
+            <p class="mt-4 text-xl text-gray-600">Test your skills and build healthy financial habits.</p>
+        </div>
+
+        <!-- Challenges Grid -->
+        <div id="challenges-grid" class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
+            <!-- Challenge cards will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="challenge-modal" class="modal-overlay">
+        <div id="modal-content-container" class="modal-content">
+            <!-- Challenge content will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set active nav link
+            document.getElementById('nav-challenges').classList.add('active');
+
+            // --- DATA ---
+            // Store all challenge data in an array of objects for easy management.
+            const challengesData = [
+                {
+                    id: 'budget-boss',
+                    title: 'Budget Boss',
+                    description: 'Allocate a ₹1,00,000 monthly budget. But beware of unexpected expenses!',
+                    difficulty: 'easy',
+                },
+                {
+                    id: 'smart-shopper',
+                    title: 'Smart Shopper',
+                    description: 'Choose items from the list without exceeding your ₹15,000 spending limit.',
+                    difficulty: 'easy',
+                },
+                {
+                    id: 'investment-quest',
+                    title: 'Investment Quest',
+                    description: 'Choose an investment and watch its value change over time. Can you pick a winner?',
+                    difficulty: 'medium',
+                },
+                {
+                    id: 'debt-dilemma',
+                    title: 'Debt Dilemma',
+                    description: 'Tackle a ₹50,000 credit card debt. Choose a repayment strategy and see the impact of interest.',
+                    difficulty: 'medium',
+                },
+                {
+                    id: 'scam-spotter',
+                    title: 'Scam Spotter',
+                    description: 'Can you tell a real message from a phishing attempt? Mark each message as safe or a scam.',
+                    difficulty: 'hard',
+                }
+            ];
+
+            // --- DOM ELEMENTS ---
+            const challengesGrid = document.getElementById('challenges-grid');
+            const modal = document.getElementById('challenge-modal');
+            const modalContentContainer = document.getElementById('modal-content-container');
+
+            let activeInterval = null; // To hold the active setInterval for the investment challenge
+
+            // --- RENDER FUNCTIONS ---
+
+            /**
+             * Dynamically creates and inserts challenge cards into the grid.
+             */
+            function renderChallengeCards() {
+                challengesGrid.innerHTML = ''; // Clear existing cards
+                challengesData.forEach(challenge => {
+                    const card = document.createElement('div');
+                    card.className = `challenge-card bg-white rounded-lg shadow-md p-6 flex flex-col justify-between difficulty-${challenge.difficulty}`;
+                    card.innerHTML = `
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">${challenge.title}</h3>
+                        <p class="mt-2 text-gray-600">${challenge.description}</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <span class="text-sm font-semibold capitalize text-gray-500">${challenge.difficulty}</span>
+                        <button data-challenge-id="${challenge.id}" class="start-challenge-btn bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">Start Challenge</button>
+                    </div>
+                `;
+                    challengesGrid.appendChild(card);
+                });
+            }
+
+            /**
+             * Renders the content for a specific challenge inside the modal.
+             * @param {string} challengeId - The ID of the challenge to start.
+             */
+            function renderChallengeContent(challengeId) {
+                // Stop any active intervals from previous challenges
+                if (activeInterval) clearInterval(activeInterval);
+
+                let contentHTML = '';
+                const challenge = challengesData.find(c => c.id === challengeId);
+
+                // Common modal wrapper
+                contentHTML += `
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">${challenge.title}</h2>
+                    <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                </div>
+            `;
+
+                // Generate content based on challenge ID
+                switch (challengeId) {
+                    case 'budget-boss':
+                        contentHTML += `
+                        <p>Your monthly budget is <strong>₹1,00,000</strong>. Allocate it below.</p>
+                        <div class="mt-4 space-y-2">
+                            <div><label>Rent:</label> <input type="number" class="budget-input border-b w-full p-1" value="30000"></div>
+                            <div><label>Food:</label> <input type="number" class="budget-input border-b w-full p-1" value="15000"></div>
+                            <div><label>Transport:</label> <input type="number" class="budget-input border-b w-full p-1" value="5000"></div>
+                            <div><label>Savings:</label> <input type="number" class="budget-input border-b w-full p-1" value="20000"></div>
+                            <div><label>Entertainment:</label> <input type="number" class="budget-input border-b w-full p-1" value="10000"></div>
+                        </div>
+                        <div class="mt-4 text-center font-bold text-xl">Remaining: <span id="remaining-budget">₹20,000</span></div>
+                        <div id="unexpected-expense-feedback" class="mt-4 text-center p-2 rounded-md font-semibold" style="display:none;"></div>
+                    `;
+                        break;
+                    case 'smart-shopper':
+                        contentHTML += `
+                        <p>Your spending limit is <strong>₹15,000</strong>. Choose your items wisely.</p>
+                        <div id="product-grid" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="product-card border-2 p-2 rounded-lg cursor-pointer" data-price="8000">Phone (₹8,000)</div>
+                            <div class="product-card border-2 p-2 rounded-lg cursor-pointer" data-price="4000">Headphones (₹4,000)</div>
+                            <div class="product-card border-2 p-2 rounded-lg cursor-pointer" data-price="2500">Watch (₹2,500)</div>
+                            <div class="product-card border-2 p-2 rounded-lg cursor-pointer" data-price="1200">Shoes (₹1,200)</div>
+                            <div class="product-card border-2 p-2 rounded-lg cursor-pointer" data-price="5000">Jacket (₹5,000)</div>
+                            <div class="product-card border-2 p-2 rounded-lg cursor-pointer" data-price="3000">Backpack (₹3,000)</div>
+                        </div>
+                        <div class="mt-4 text-center font-bold text-xl">Total Spent: <span id="total-spent">₹0</span> / ₹15,000</div>
+                        <div id="shopper-feedback" class="mt-2 text-center font-semibold"></div>
+                    `;
+                        break;
+                    case 'investment-quest':
+                        contentHTML += `
+                        <p>Choose your investment and see how it performs. You can stop at any time.</p>
+                        <div class="mt-4 flex justify-around">
+                            <label><input type="radio" name="investment" value="savings" checked> Savings</label>
+                            <label><input type="radio" name="investment" value="stocks"> Stocks</label>
+                            <label><input type="radio" name="investment" value="bonds"> Bonds</label>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <p class="text-lg">Initial Investment: <strong>₹10,000</strong></p>
+                            <p class="text-2xl font-bold">Current Value: <span id="investment-value">₹10,000</span></p>
+                        </div>
+                        <button id="stop-investment-btn" class="mt-4 w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">Stop Simulation</button>
+                    `;
+                        break;
+                    case 'debt-dilemma':
+                        contentHTML += `
+                        <p>You have a <strong>₹50,000</strong> credit card debt with 20% annual interest.</p>
+                        <div class="mt-4">
+                            <label for="repayment-strategy" class="font-semibold">Choose a repayment strategy:</label>
+                            <select id="repayment-strategy" class="w-full mt-1 p-2 border rounded-md">
+                                <option value="min">Minimum Payment (₹2,500/mo)</option>
+                                <option value="med">Moderate Payment (₹5,000/mo)</option>
+                                <option value="agg">Aggressive Payment (₹10,000/mo)</option>
+                            </select>
+                        </div>
+                        <div id="debt-feedback" class="mt-4 text-center p-2 bg-gray-100 rounded-md"></div>
+                    `;
+                        break;
+                    case 'scam-spotter':
+                        contentHTML += `
+                        <div id="scam-message-container" class="p-4 bg-gray-100 rounded-md"></div>
+                        <div class="mt-4 flex justify-center gap-4">
+                            <button id="mark-safe-btn" class="bg-green-500 text-white px-6 py-2 rounded-md">Safe</button>
+                            <button id="mark-scam-btn" class="bg-red-500 text-white px-6 py-2 rounded-md">Scam</button>
+                        </div>
+                        <div id="scam-feedback" class="mt-4 text-center font-semibold"></div>
+                        <div id="scam-score" class="mt-2 text-center font-bold">Score: 0/0</div>
+                    `;
+                        break;
+                }
+
+                modalContentContainer.innerHTML = contentHTML;
+                setupChallengeListeners(challengeId); // Set up listeners for the newly created content
+            }
+
+            // --- EVENT LISTENERS & LOGIC ---
+
+            /**
+             * Sets up the specific event listeners for the currently active challenge modal.
+             * @param {string} challengeId - The ID of the active challenge.
+             */
+            function setupChallengeListeners(challengeId) {
+                // Universal close button listener
+                document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+                // Logic for each specific challenge
+                switch (challengeId) {
+                    case 'budget-boss':
+                        const budgetInputs = document.querySelectorAll('.budget-input');
+                        const remainingBudgetEl = document.getElementById('remaining-budget');
+                        const feedbackEl = document.getElementById('unexpected-expense-feedback');
+                        let budgetTimeout = null;
+
+                        const updateBudget = () => {
+                            let totalSpent = 0;
+                            budgetInputs.forEach(input => totalSpent += Number(input.value));
+                            const remaining = 100000 - totalSpent;
+                            remainingBudgetEl.textContent = `₹${remaining.toLocaleString('en-IN')}`;
+                        };
+
+                        budgetInputs.forEach(input => input.addEventListener('input', updateBudget));
+
+                        // Trigger random expense after 5 seconds
+                        budgetTimeout = setTimeout(() => {
+                            const expenses = [
+                                { name: 'Car Repair', cost: 12000 },
+                                { name: 'Medical Bill', cost: 8500 },
+                                { name: 'Home Appliance Failure', cost: 15000 }
+                            ];
+                            const randomExpense = expenses[Math.floor(Math.random() * expenses.length)];
+
+                            let totalSpent = 0;
+                            budgetInputs.forEach(input => totalSpent += Number(input.value));
+                            const remaining = 100000 - totalSpent;
+                            const newRemaining = remaining - randomExpense.cost;
+
+                            feedbackEl.innerHTML = `Oh no! An unexpected expense: <strong>${randomExpense.name}</strong> (-₹${randomExpense.cost.toLocaleString('en-IN')}).`;
+                            feedbackEl.style.display = 'block';
+                            feedbackEl.className = 'mt-4 text-center p-2 rounded-md font-semibold bg-red-100 text-red-700';
+                            remainingBudgetEl.textContent = `₹${newRemaining.toLocaleString('en-IN')}`;
+                        }, 5000);
+                        break;
+
+                    case 'smart-shopper':
+                        const productCards = document.querySelectorAll('.product-card');
+                        const totalSpentEl = document.getElementById('total-spent');
+                        const shopperFeedbackEl = document.getElementById('shopper-feedback');
+                        const limit = 15000;
+
+                        const updateShopperTotal = () => {
+                            let currentTotal = 0;
+                            document.querySelectorAll('.product-card.selected').forEach(card => {
+                                currentTotal += Number(card.dataset.price);
+                            });
+                            totalSpentEl.textContent = `₹${currentTotal.toLocaleString('en-IN')}`;
+                            if (currentTotal > limit) {
+                                shopperFeedbackEl.textContent = "You've gone over budget!";
+                                shopperFeedbackEl.className = 'mt-2 text-center font-semibold text-red-600';
+                            } else {
+                                shopperFeedbackEl.textContent = "You're within your limit.";
+                                shopperFeedbackEl.className = 'mt-2 text-center font-semibold text-green-600';
+                            }
+                        };
+
+                        productCards.forEach(card => {
+                            card.addEventListener('click', () => {
+                                card.classList.toggle('selected');
+                                updateShopperTotal();
+                            });
+                        });
+                        break;
+
+                    case 'investment-quest':
+                        const investmentValueEl = document.getElementById('investment-value');
+                        const investmentRadios = document.querySelectorAll('input[name="investment"]');
+                        let currentValue = 10000;
+
+                        const factors = {
+                            savings: 1.0001, // Low risk, low reward
+                            bonds: 1.0005,   // Medium risk, medium reward
+                            stocks: 1.002,   // High risk, high reward
+                        };
+
+                        const simulateReturns = () => {
+                            const selectedType = document.querySelector('input[name="investment"]:checked').value;
+                            const volatility = Math.random() - 0.49; // Creates fluctuations
+                            currentValue *= (factors[selectedType] + volatility * 0.005);
+                            investmentValueEl.textContent = `₹${currentValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+                        };
+
+                        activeInterval = setInterval(simulateReturns, 1500);
+
+                        document.getElementById('stop-investment-btn').addEventListener('click', () => {
+                            clearInterval(activeInterval);
+                            activeInterval = null;
+                            alert(`Simulation stopped! Final value: ₹${currentValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`);
+                        });
+                        break;
+
+                    case 'debt-dilemma':
+                        const strategySelect = document.getElementById('repayment-strategy');
+                        const debtFeedbackEl = document.getElementById('debt-feedback');
+
+                        const calculateDebt = () => {
+                            let debt = 50000;
+                            const annualRate = 0.20;
+                            const monthlyRate = annualRate / 12;
+                            const payment = Number(strategySelect.value === 'min' ? 2500 : (strategySelect.value === 'med' ? 5000 : 10000));
+                            let months = 0;
+                            let totalInterest = 0;
+
+                            while (debt > 0) {
+                                const interestThisMonth = debt * monthlyRate;
+                                totalInterest += interestThisMonth;
+                                debt += interestThisMonth;
+                                debt -= payment;
+                                months++;
+                                if (months > 1200) break; // Safety break
+                            }
+                            debtFeedbackEl.innerHTML = `It will take you <strong>${months} months</strong> to pay off the debt. You'll pay <strong>₹${totalInterest.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</strong> in total interest.`;
+                        };
+
+                        strategySelect.addEventListener('change', calculateDebt);
+                        calculateDebt(); // Initial calculation
+                        break;
+
+                    case 'scam-spotter':
+                        const messages = [
+                            { text: "URGENT: Your bank account is locked. Click here to verify your details NOW: bit.ly/2sXyZ", isScam: true },
+                            { text: "Hi, it's your friend Alex. I lost my phone, can you send me ₹5,000 on this number?", isScam: true },
+                            { text: "Your Amazon order #123-456 has shipped. Track it here.", isScam: false },
+                            { text: "You've won a FREE iPhone! Claim your prize by entering your credit card info for shipping.", isScam: true },
+                            { text: "Reminder: Your electricity bill is due tomorrow. Pay via our official app.", isScam: false },
+                        ];
+                        let currentMessageIndex = 0;
+                        let score = 0;
+
+                        const messageContainer = document.getElementById('scam-message-container');
+                        const scamFeedbackEl = document.getElementById('scam-feedback');
+                        const scoreEl = document.getElementById('scam-score');
+
+                        const showNextMessage = () => {
+                            if (currentMessageIndex >= messages.length) {
+                                messageContainer.textContent = "Challenge Complete!";
+                                document.getElementById('mark-safe-btn').disabled = true;
+                                document.getElementById('mark-scam-btn').disabled = true;
+                                return;
+                            }
+                            messageContainer.textContent = messages[currentMessageIndex].text;
+                            scamFeedbackEl.textContent = '';
+                        };
+
+                        const handleGuess = (isScamGuess) => {
+                            const correct = messages[currentMessageIndex].isScam === isScamGuess;
+                            if (correct) {
+                                score++;
+                                scamFeedbackEl.textContent = "Correct!";
+                                scamFeedbackEl.className = 'mt-4 text-center font-semibold text-green-600';
+                            } else {
+                                scamFeedbackEl.textContent = "Incorrect!";
+                                scamFeedbackEl.className = 'mt-4 text-center font-semibold text-red-600';
+                            }
+                            currentMessageIndex++;
+                            scoreEl.textContent = `Score: ${score}/${currentMessageIndex}`;
+                            setTimeout(showNextMessage, 1500);
+                        };
+
+                        document.getElementById('mark-safe-btn').addEventListener('click', () => handleGuess(false));
+                        document.getElementById('mark-scam-btn').addEventListener('click', () => handleGuess(true));
+                        showNextMessage();
+                        break;
+                }
+            }
+
+            // --- MODAL CONTROL ---
+            function openModal(challengeId) {
+                renderChallengeContent(challengeId);
+                modal.classList.add('active');
+            }
+
+            function closeModal() {
+                if (activeInterval) clearInterval(activeInterval); // Ensure interval stops on close
+                modal.classList.remove('active');
+                modalContentContainer.innerHTML = ''; // Clear content to stop any scripts
+            }
+
+            // --- INITIALIZATION ---
+            renderChallengeCards();
+
+            // Add a single event listener to the grid and delegate events
+            challengesGrid.addEventListener('click', (e) => {
+                if (e.target.classList.contains('start-challenge-btn')) {
+                    const challengeId = e.target.dataset.challengeId;
+                    openModal(challengeId);
+                }
+            });
+
+            // Close modal if overlay is clicked
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

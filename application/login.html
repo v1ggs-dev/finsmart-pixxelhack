@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - FinSmart</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab.active {
+            border-bottom-color: #4f46e5;
+            /* indigo-600 */
+            color: #4f46e5;
+            font-weight: 600;
+        }
+    </style>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50">
+
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full bg-white p-8 md:p-10 rounded-xl shadow-lg">
+            <div class="text-center mb-8">
+                <img class="mx-auto h-12 w-auto"
+                    src="https://cdn.v1ggs.lol/assets/fin_favicon.png" alt="FinSmart Logo">
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                    Welcome to FinSmart
+                </h2>
+            </div>
+
+            <div class="flex border-b border-gray-200">
+                <button id="signin-tab" class="tab active flex-1 py-2 text-center text-gray-500">Sign In</button>
+                <button id="signup-tab" class="tab flex-1 py-2 text-center text-gray-500">Sign Up</button>
+            </div>
+
+            <form id="signin-form" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <input id="signin-email" type="email" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Email address">
+                    </div>
+                    <div>
+                        <input id="signin-password" type="password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Password">
+                    </div>
+                </div>
+
+                <div class="text-sm text-right">
+                    <span class="text-gray-600">Forgot password? </span>
+                    <a href="mailto:v1ggs.tech+passwordreset@gmail.com"
+                        class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Send a mail to us!
+                    </a>
+                </div>
+                <div id="signin-error" class="text-red-500 text-sm text-center" style="display: none;"></div>
+
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <form id="signup-form" class="mt-8 space-y-6" style="display: none;">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <input id="signup-name" type="text" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Full Name">
+                    </div>
+                    <div>
+                        <input id="signup-email" type="email" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Email address">
+                    </div>
+                    <div>
+                        <input id="signup-dob" type="text" onfocus="(this.type='date')" onblur="(this.type='text')"
+                            required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Date of Birth">
+                    </div>
+                    <div>
+                        <input id="signup-password" type="password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Password">
+                    </div>
+                </div>
+                <div id="signup-error" class="text-red-500 text-sm text-center" style="display: none;"></div>
+                <div>
+                    <button type="submit"
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- UI Elements ---
+        const signinTab = document.getElementById('signin-tab');
+        const signupTab = document.getElementById('signup-tab');
+        const signinForm = document.getElementById('signin-form');
+        const signupForm = document.getElementById('signup-form');
+
+        // --- Tab Switching Logic ---
+        signinTab.addEventListener('click', () => {
+            signinTab.classList.add('active');
+            signupTab.classList.remove('active');
+            signinForm.style.display = 'block';
+            signupForm.style.display = 'none';
+        });
+
+        signupTab.addEventListener('click', () => {
+            signupTab.classList.add('active');
+            signinTab.classList.remove('active');
+            signupForm.style.display = 'block';
+            signinForm.style.display = 'none';
+        });
+
+        // --- Sign Up Logic (Mocked) ---
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const dob = document.getElementById('signup-dob').value;
+            const errorEl = document.getElementById('signup-error');
+            errorEl.style.display = 'none';
+
+            // Calculate age from DOB
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            if (age < 12) {
+                errorEl.textContent = 'You must be at least 12 years old to sign up.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Mock saving user session data
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userAge', age);
+            sessionStorage.setItem('userName', name); // Storing name for the dashboard
+
+            // Redirect to the main page
+            window.location.href = 'index.html';
+        });
+
+        // --- Sign In Logic (Mocked) ---
+        signinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const errorEl = document.getElementById('signin-error');
+            errorEl.style.display = 'none';
+
+            // In a real app we'd verify the password. Here we just log them in.
+            if(email) {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('userAge', 18); // Default to adult for mock login
+                sessionStorage.setItem('userName', 'Student');
+                
+                // Redirect to the main page
+                window.location.href = 'index.html';
+            } else {
+                errorEl.textContent = 'Please enter an email.';
+                errorEl.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools - FinSmart</title>
+    <link rel="icon" type="image/png" href="https://cdn.v1ggs.lol/assets/fin_favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+
+        .nav-link.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-card {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Staggered animation delays */
+        .tool-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .tool-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .tool-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .tool-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .tool-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .tool-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .form-slider {
+            @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+        }
+
+        .inline-input {
+            @apply bg-transparent border-b-2 border-gray-300 focus:outline-none focus:border-indigo-500 text-right font-bold;
+        }
+
+        .result-value {
+            transition: color 0.3s ease;
+        }
+
+        .budget-bar {
+            transition: width 0.5s ease-out;
+        }
+
+        .chart-path {
+            transition: d 0.5s ease-out;
+        }
+
+        /* Toggle Switch */
+        .toggle-bg {
+            @apply w-11 h-6 bg-gray-200 rounded-full transition-colors ease-in-out duration-200;
+        }
+
+        .toggle-bg:after {
+            content: '';
+            @apply absolute top-0.5 left-0.5 bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform shadow-sm duration-200 ease-in-out;
+        }
+
+        input:checked+.toggle-bg:after {
+            transform: translateX(100%);
+            @apply border-white;
+        }
+
+        input:checked+.toggle-bg {
+            @apply bg-indigo-600;
+        }
+
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-pop {
+            animation: pop 0.3s ease-out;
+        }
+    </style>
+    <script>
+
+        // --- Authentication & Navigation Guard (Runs immediately) ---
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // --- This runs after the page content is loaded ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Active Link Highlighting (Automatic) ---
+            const currentPage = window.location.pathname.split('/').pop();
+            if (currentPage === 'index.html' || currentPage === '') {
+                document.getElementById('nav-dashboard')?.classList.add('active');
+            } else if (currentPage.startsWith('learn')) { // Handles learn.html, learn_juniors.html, etc.
+                document.getElementById('nav-learn')?.classList.add('active');
+            } else if (currentPage === 'tools.html') {
+                document.getElementById('nav-tools')?.classList.add('active');
+            } else if (currentPage === 'challenges.html') {
+                document.getElementById('nav-challenges')?.classList.add('active');
+            }
+
+            // --- Dynamic "Learn" Link Logic ---
+            const userAge = parseInt(sessionStorage.getItem('userAge'), 10);
+            const learnLink = document.getElementById('nav-learn');
+            if (learnLink) {
+                if (userAge >= 12 && userAge < 16) {
+                    learnLink.href = 'learn_juniors.html';
+                } else if (userAge >= 16 && userAge < 18) {
+                    learnLink.href = 'learn_seniors.html';
+                } else {
+                    learnLink.href = 'learn.html';
+                }
+            }
+
+            // --- Logout Button Functionality ---
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // --- Your other page-specific JavaScript can go here ---
+            // For example, on challenges.html, the code for rendering challenge cards would follow.
+        });
+    </script>
+    <link rel="stylesheet" href="../css/dashboard-dark.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
+</head>
+
+<body class="text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img class="h-8 w-8 mr-2" src="https://cdn.v1ggs.lol/assets/fin_favicon.png"
+                        alt="FinSmart Logo">
+                    <span class="font-bold text-xl text-indigo-600">FinSmart</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="index.html" id="nav-dashboard"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="#" id="nav-learn"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Learn</a>
+                        <a href="tools.html" id="nav-tools"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Tools</a>
+                        <a href="challenges.html" id="nav-challenges"
+                            class="nav-link text-gray-600 hover:bg-indigo-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Challenges</a>
+                        <button id="logout-btn"
+                            class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="text-center px-4">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Financial Calculators</h1>
+            <p class="mt-4 text-xl text-gray-600">Powerful tools to help you make smarter financial decisions.</p>
+        </div>
+
+        <!-- Tools Grid -->
+        <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 px-4">
+
+            <!-- EMI Calculator -->
+            <div class="tool-card bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900">EMI Calculator</h2>
+                <div class="mt-6 space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label for="loanAmount" class="font-medium">Loan Amount</label>
+                            <span class="text-indigo-600">₹<input type="number" id="loanAmountLabel" value="500000"
+                                    class="inline-input w-28"></span>
+                        </div>
+                        <input type="range" id="loanAmount" min="50000" max="5000000" step="10000" value="500000"
+                            class="form-slider mt-2">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label for="interestRate" class="font-medium">Annual Interest Rate</label>
+                            <span class="text-indigo-600"><input type="number" step="0.1" id="interestRateLabel"
+                                    value="8.5" class="inline-input w-20">%</span>
+                        </div>
+                        <input type="range" id="interestRate" min="1" max="20" step="0.1" value="8.5"
+                            class="form-slider mt-2">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label for="loanTenure" class="font-medium">Loan Tenure</label>
+                            <span class="text-indigo-600"><input type="number" id="loanTenureLabel" value="5"
+                                    class="inline-input w-16"> years</span>
+                        </div>
+                        <input type="range" id="loanTenure" min="1" max="30" step="1" value="5"
+                            class="form-slider mt-2">
+                    </div>
+                </div>
+                <div class="mt-8 text-center p-4 bg-indigo-50 rounded-lg">
+                    <p class="text-lg text-gray-700">Monthly EMI:</p>
+                    <p id="emiValue" class="text-4xl font-bold text-indigo-600 result-value">₹10,258</p>
+                </div>
+            </div>
+
+            <!-- Savings Goal Calculator -->
+            <div class="tool-card bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900">Savings Goal Calculator</h2>
+                <div class="mt-6 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <label for="targetAmount" class="font-medium">Target Amount</label>
+                        <span class="text-green-600">₹<input type="number" id="targetAmount" class="inline-input w-32"
+                                value="1000000"></span>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label for="savingYears" class="font-medium">Time to Save</label>
+                            <span class="text-green-600"><input type="number" id="savingYearsLabel" value="10"
+                                    class="inline-input w-16"> years</span>
+                        </div>
+                        <input type="range" id="savingYears" min="1" max="40" step="1" value="10"
+                            class="form-slider mt-2">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label for="expectedReturn" class="font-medium">Expected Return</label>
+                            <span class="text-green-600"><input type="number" step="0.5" id="expectedReturnLabel"
+                                    value="7" class="inline-input w-20">%</span>
+                        </div>
+                        <input type="range" id="expectedReturn" min="0" max="15" step="0.5" value="7"
+                            class="form-slider mt-2">
+                    </div>
+                </div>
+                <div class="mt-8 text-center p-4 bg-green-50 rounded-lg">
+                    <p class="text-lg text-gray-700">Monthly Savings Needed:</p>
+                    <p id="savingsValue" class="text-4xl font-bold text-green-600 result-value">₹5,785</p>
+                </div>
+            </div>
+
+            <!-- ROI Calculator -->
+            <div class="tool-card bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900">ROI Calculator</h2>
+                <div class="mt-6 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <label for="totalCost" class="font-medium">Total Cost</label>
+                        <span class="text-yellow-800">₹<input type="number" id="totalCost"
+                                class="roi-input inline-input w-32" value="100000"></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <label for="totalRevenue" class="font-medium">Total Revenue</label>
+                        <span class="text-yellow-800">₹<input type="number" id="totalRevenue"
+                                class="roi-input inline-input w-32" value="125000"></span>
+                    </div>
+                </div>
+                <div class="mt-8 text-center p-4 bg-yellow-50 rounded-lg">
+                    <p class="text-lg text-gray-700">Net Profit:</p>
+                    <p id="netProfitValue" class="text-3xl font-bold text-green-600 result-value">₹25,000</p>
+                    <p id="roiPercentage" class="text-xl font-semibold text-yellow-600 mt-1">ROI: 25.00%</p>
+                </div>
+            </div>
+
+            <!-- Budget Percentage Calculator -->
+            <div class="tool-card bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900">Budget Calculator</h2>
+                <div class="mt-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <label for="monthlyIncome" class="font-medium">Monthly Income</label>
+                        <span class="text-gray-800">₹<input type="number" id="monthlyIncome"
+                                class="budget-input inline-input w-32" value="50000"></span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <label for="rentExpense" class="font-medium text-sm">Housing / Rent</label>
+                        <span class="text-red-500">₹<input type="number" id="rentExpense"
+                                class="budget-input budget-expense inline-input w-28 text-sm" value="15000"
+                                data-category="Housing" data-color="bg-red-400"></span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <label for="foodExpense" class="font-medium text-sm">Food & Groceries</label>
+                        <span class="text-yellow-500">₹<input type="number" id="foodExpense"
+                                class="budget-input budget-expense inline-input w-28 text-sm" value="8000"
+                                data-category="Food" data-color="bg-yellow-400"></span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <label for="transportExpense" class="font-medium text-sm">Transport</label>
+                        <span class="text-blue-500">₹<input type="number" id="transportExpense"
+                                class="budget-input budget-expense inline-input w-28 text-sm" value="3000"
+                                data-category="Transport" data-color="bg-blue-400"></span>
+                    </div>
+                    <div class="mt-6 flex flex-col justify-center bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-md font-bold text-gray-800 mb-2">Budget Breakdown</h3>
+                        <div id="budgetBreakdown" class="space-y-2"></div>
+                        <div class="mt-3 pt-3 border-t-2 border-dashed">
+                            <div class="flex justify-between font-bold text-md">
+                                <span>Remaining:</span>
+                                <span id="remainingAmount">₹24,000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Income Tax Calculator -->
+            <div class="tool-card bg-white rounded-xl shadow-lg p-8 lg:col-span-2">
+                <h2 class="text-2xl font-bold text-gray-900">Income Tax Calculator (FY 2025-26)</h2>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label for="grossIncome" class="font-medium">Gross Annual Income</label>
+                            <span class="text-gray-800">₹<input type="number" id="grossIncome"
+                                    class="tax-input inline-input w-32" value="1200000"></span>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="font-medium text-gray-700">Tax Regime</span>
+                            <div class="flex items-center">
+                                <span id="oldRegimeLabel" class="text-sm font-semibold text-gray-500">Old</span>
+                                <label for="taxRegimeToggle"
+                                    class="relative inline-flex items-center cursor-pointer mx-2">
+                                    <input type="checkbox" id="taxRegimeToggle" class="sr-only tax-input" checked>
+                                    <div class="w-11 h-6 toggle-bg"></div>
+                                </label>
+                                <span id="newRegimeLabel" class="text-sm font-semibold text-indigo-600">New</span>
+                            </div>
+                        </div>
+                        <div id="oldRegimeDeductions" class="space-y-4 hidden pt-4">
+                            <div class="flex justify-between items-center">
+                                <label for="totalDeductions" class="font-medium">Total Deductions</label>
+                                <span class="text-gray-800">₹<input type="number" id="totalDeductions"
+                                        class="tax-input inline-input w-32" value="175000"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center bg-red-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">Tax Calculation</h3>
+                        <div class="space-y-2 text-md">
+                            <div class="flex justify-between"><span>Taxable Income:</span> <span id="taxableIncome"
+                                    class="font-semibold"></span></div>
+                            <div class="flex justify-between"><span>Tax Before Rebate:</span> <span id="taxBeforeRebate"
+                                    class="font-semibold"></span></div>
+                            <div class="flex justify-between"><span>Rebate (u/s 87A):</span> <span id="rebateValue"
+                                    class="font-semibold"></span></div>
+                            <hr class="my-2 border-dashed">
+                            <div class="flex justify-between font-bold text-xl"><span>Final Tax Payable:</span> <span
+                                    id="finalTaxPayable" class="text-red-600"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Compound Interest Calculator -->
+            <div class="tool-card bg-white rounded-xl shadow-lg p-8 lg:col-span-2">
+                <h2 class="text-2xl font-bold text-gray-900">Compound Interest Calculator</h2>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <label for="initialInvestment" class="font-medium">Initial Investment</label>
+                            <span class="text-purple-600">₹<input type="number" id="initialInvestment"
+                                    class="compound-input inline-input w-32" value="50000"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="monthlyContribution" class="font-medium">Monthly Contribution</label>
+                            <span class="text-purple-600">₹<input type="number" id="monthlyContribution"
+                                    class="compound-input inline-input w-32" value="5000"></span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <label for="compoundYears" class="font-medium">Years to Grow</label>
+                                <span class="text-purple-600"><input type="number" id="compoundYearsLabel" value="10"
+                                        class="inline-input w-16"> years</span>
+                            </div>
+                            <input type="range" id="compoundYears" min="1" max="50" step="1" value="10"
+                                class="compound-input form-slider mt-2">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <label for="compoundRate" class="font-medium">Estimated Annual Rate</label>
+                                <span class="text-purple-600"><input type="number" step="0.5" id="compoundRateLabel"
+                                        value="8" class="inline-input w-20">%</span>
+                            </div>
+                            <input type="range" id="compoundRate" min="1" max="20" step="0.5" value="8"
+                                class="compound-input form-slider mt-2">
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center bg-purple-50 p-6 rounded-lg">
+                        <p class="text-lg text-gray-700">Future Value:</p>
+                        <p id="compoundValue" class="text-5xl font-bold text-purple-600 result-value">₹10,19,051</p>
+                        <div class="w-full h-40 mt-4">
+                            <svg id="compoundChart" class="w-full h-full" viewBox="0 0 100 50">
+                                <path d="" stroke="#8b5cf6" fill="none" stroke-width="2" class="chart-path" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('nav-tools').classList.add('active');
+
+            const formatCurrency = (value) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
+
+            function animateResult(element, value) {
+                if (element.textContent !== value) {
+                    element.textContent = value;
+                    element.classList.add('animate-pop');
+                    setTimeout(() => element.classList.remove('animate-pop'), 300);
+                }
+            }
+
+            function twoWayBind(sliderId, inputId, callback) {
+                const slider = document.getElementById(sliderId);
+                const input = document.getElementById(inputId);
+                slider.addEventListener('input', () => {
+                    input.value = slider.value;
+                    callback();
+                });
+                input.addEventListener('input', () => {
+                    slider.value = input.value;
+                    callback();
+                });
+            }
+
+            // --- ROI Calculator ---
+            const roiInputs = document.querySelectorAll('.roi-input');
+            function calculateRoi() {
+                const totalCost = parseFloat(document.getElementById('totalCost').value) || 0;
+                const totalRevenue = parseFloat(document.getElementById('totalRevenue').value) || 0;
+                const netProfit = totalRevenue - totalCost;
+                const roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
+                const netProfitEl = document.getElementById('netProfitValue');
+                animateResult(netProfitEl, formatCurrency(netProfit));
+                document.getElementById('roiPercentage').textContent = `ROI: ${roi.toFixed(2)}%`;
+                netProfitEl.classList.toggle('text-red-600', netProfit < 0);
+                netProfitEl.classList.toggle('text-green-600', netProfit > 0);
+            }
+            roiInputs.forEach(el => el.addEventListener('input', calculateRoi));
+            calculateRoi();
+
+            // --- EMI Calculator ---
+            function calculateEmi() {
+                const p = parseFloat(document.getElementById('loanAmountLabel').value);
+                const r = parseFloat(document.getElementById('interestRateLabel').value) / 12 / 100;
+                const n = parseFloat(document.getElementById('loanTenureLabel').value) * 12;
+                if (p > 0 && r > 0 && n > 0) {
+                    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                    animateResult(document.getElementById('emiValue'), formatCurrency(emi));
+                } else {
+                    animateResult(document.getElementById('emiValue'), formatCurrency(0));
+                }
+            }
+            twoWayBind('loanAmount', 'loanAmountLabel', calculateEmi);
+            twoWayBind('interestRate', 'interestRateLabel', calculateEmi);
+            twoWayBind('loanTenure', 'loanTenureLabel', calculateEmi);
+            calculateEmi();
+
+            // --- Savings Goal Calculator ---
+            function calculateSavings() {
+                const fv = parseFloat(document.getElementById('targetAmount').value);
+                const years = parseFloat(document.getElementById('savingYearsLabel').value);
+                const rate = parseFloat(document.getElementById('expectedReturnLabel').value) / 100;
+                if (fv > 0 && years > 0) {
+                    const n = years * 12;
+                    const r = rate / 12;
+                    const monthlySaving = (r > 0) ? (fv * r) / (Math.pow(1 + r, n) - 1) : fv / n;
+                    animateResult(document.getElementById('savingsValue'), formatCurrency(monthlySaving));
+                } else {
+                    animateResult(document.getElementById('savingsValue'), formatCurrency(0));
+                }
+            }
+            document.getElementById('targetAmount').addEventListener('input', calculateSavings);
+            twoWayBind('savingYears', 'savingYearsLabel', calculateSavings);
+            twoWayBind('expectedReturn', 'expectedReturnLabel', calculateSavings);
+            calculateSavings();
+
+            // --- Budget Percentage Calculator ---
+            const budgetInputs = document.querySelectorAll('.budget-input');
+            function calculateBudget() {
+                const income = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+                let totalExpenses = 0;
+                const budgetBreakdownEl = document.getElementById('budgetBreakdown');
+                budgetBreakdownEl.innerHTML = '';
+                document.querySelectorAll('.budget-expense').forEach(input => {
+                    const expenseValue = parseFloat(input.value) || 0;
+                    totalExpenses += expenseValue;
+                    const percentage = income > 0 ? (expenseValue / income) * 100 : 0;
+                    const { category, color } = input.dataset;
+                    budgetBreakdownEl.innerHTML += `<div><div class="flex justify-between text-sm mb-1"><span>${category}</span><span class="font-semibold">${percentage.toFixed(1)}%</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="${color} h-2 rounded-full budget-bar" style="width: ${percentage}%"></div></div></div>`;
+                });
+                const remaining = income - totalExpenses;
+                const remainingEl = document.getElementById('remainingAmount');
+                animateResult(remainingEl, formatCurrency(remaining));
+                remainingEl.classList.toggle('text-red-500', remaining < 0);
+                remainingEl.classList.toggle('text-green-600', remaining >= 0);
+            }
+            budgetInputs.forEach(el => el.addEventListener('input', calculateBudget));
+            calculateBudget();
+
+            // --- Income Tax Calculator (FY 2025-26) ---
+            const taxInputs = document.querySelectorAll('.tax-input');
+            const taxRegimeToggle = document.getElementById('taxRegimeToggle');
+            const oldRegimeDeductionsDiv = document.getElementById('oldRegimeDeductions');
+            taxRegimeToggle.addEventListener('change', () => {
+                oldRegimeDeductionsDiv.classList.toggle('hidden', taxRegimeToggle.checked);
+                document.getElementById('oldRegimeLabel').classList.toggle('text-gray-500', taxRegimeToggle.checked);
+                document.getElementById('oldRegimeLabel').classList.toggle('text-indigo-600', !taxRegimeToggle.checked);
+                document.getElementById('newRegimeLabel').classList.toggle('text-indigo-600', taxRegimeToggle.checked);
+                document.getElementById('newRegimeLabel').classList.toggle('text-gray-500', !taxRegimeToggle.checked);
+                calculateTax();
+            });
+            function calculateTax() {
+                const grossIncome = parseFloat(document.getElementById('grossIncome').value) || 0;
+                const isNewRegime = taxRegimeToggle.checked;
+                let deductions = isNewRegime ? 0 : parseFloat(document.getElementById('totalDeductions').value) || 0;
+                let taxableIncome = Math.max(0, grossIncome - deductions);
+                let taxBeforeRebate = 0;
+                if (isNewRegime) {
+                    if (taxableIncome > 2400000) taxBeforeRebate += (taxableIncome - 2400000) * 0.30;
+                    if (taxableIncome > 2000000) taxBeforeRebate += (Math.min(taxableIncome, 2400000) - 2000000) * 0.25;
+                    if (taxableIncome > 1600000) taxBeforeRebate += (Math.min(taxableIncome, 2000000) - 1600000) * 0.20;
+                    if (taxableIncome > 1200000) taxBeforeRebate += (Math.min(taxableIncome, 1600000) - 1200000) * 0.15;
+                    if (taxableIncome > 800000) taxBeforeRebate += (Math.min(taxableIncome, 1200000) - 800000) * 0.10;
+                    if (taxableIncome > 400000) taxBeforeRebate += (Math.min(taxableIncome, 800000) - 400000) * 0.05;
+                } else {
+                    if (taxableIncome > 1000000) taxBeforeRebate += (taxableIncome - 1000000) * 0.30;
+                    if (taxableIncome > 500000) taxBeforeRebate += (Math.min(taxableIncome, 1000000) - 500000) * 0.20;
+                    if (taxableIncome > 250000) taxBeforeRebate += (Math.min(taxableIncome, 500000) - 250000) * 0.05;
+                }
+                let rebate = (taxableIncome <= 1200000) ? taxBeforeRebate : 0;
+                const finalTaxPayable = Math.max(0, taxBeforeRebate - rebate);
+                animateResult(document.getElementById('taxableIncome'), formatCurrency(taxableIncome));
+                animateResult(document.getElementById('taxBeforeRebate'), formatCurrency(taxBeforeRebate));
+                animateResult(document.getElementById('rebateValue'), formatCurrency(-rebate));
+                animateResult(document.getElementById('finalTaxPayable'), formatCurrency(finalTaxPayable));
+            }
+            taxInputs.forEach(el => el.addEventListener('input', calculateTax));
+            calculateTax();
+
+            // --- Compound Interest Calculator ---
+            const compoundChartPath = document.getElementById('compoundChart').querySelector('path');
+            function calculateCompound() {
+                const p = parseFloat(document.getElementById('initialInvestment').value) || 0;
+                const pmt = parseFloat(document.getElementById('monthlyContribution').value) || 0;
+                const years = parseFloat(document.getElementById('compoundYearsLabel').value);
+                const rate = parseFloat(document.getElementById('compoundRateLabel').value) / 100;
+                let chartData = [], maxVal = p;
+                for (let i = 0; i <= years; i++) {
+                    const val = p * Math.pow(1 + rate, i) + pmt * 12 * ((Math.pow(1 + rate, i) - 1) / rate);
+                    chartData.push(val);
+                    if (val > maxVal) maxVal = val;
+                }
+                const totalFutureValue = chartData[chartData.length - 1];
+                animateResult(document.getElementById('compoundValue'), formatCurrency(totalFutureValue));
+                let pathD = "M 0 50";
+                chartData.forEach((val, i) => {
+                    const x = (i / years) * 100;
+                    const y = 50 - (val / maxVal) * 48;
+                    pathD += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+                });
+                compoundChartPath.setAttribute('d', pathD);
+            }
+            document.querySelectorAll('.compound-input').forEach(el => el.addEventListener('input', calculateCompound));
+            twoWayBind('compoundYears', 'compoundYearsLabel', calculateCompound);
+            twoWayBind('compoundRate', 'compoundRateLabel', calculateCompound);
+            calculateCompound();
+        });
+    </script>
+
+</body>
+
+</html>
